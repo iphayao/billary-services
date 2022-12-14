@@ -1,0 +1,25 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /api/inventory
+spring:
+  datasource:
+    url: jdbc:postgresql://192.168.1.64:31064/billarydb
+    username: postgres
+    password: P@ssw0rd
+    pool:
+      initial-size: 100
+      max-size: 500
+      max-idle-time: 30m
+      validation-query: SELECT 1
+    initialization-mode: never
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://auth.readypaper.co.th/realms/billary
+
+app:
+  cors:
+    allow-origin-url: https://billary.readypaper.co.th
