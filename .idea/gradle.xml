@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="GradleSettings">
+    <option name="linkedExternalProjectsSettings">
+      <GradleProjectSettings>
+        <option name="distributionType" value="DEFAULT_WRAPPED" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="gradleJvm" value="corretto-17" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/billary-common" />
+            <option value="$PROJECT_DIR$/billary-repo" />
+            <option value="$PROJECT_DIR$/billary-service-accounting" />
+            <option value="$PROJECT_DIR$/billary-service-company" />
+            <option value="$PROJECT_DIR$/billary-service-inventory" />
+            <option value="$PROJECT_DIR$/billary-service-products" />
+            <option value="$PROJECT_DIR$/billary-service-purchases" />
+            <option value="$PROJECT_DIR$/billary-service-sales" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+    </option>
+  </component>
+</project>

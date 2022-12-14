@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
+    - name: gradle
+      image: gradle:jdk17
+      command:
+        - cat
+      tty: true
+      volumeMounts:
+        - mountPath: /home/gradle/.gradle
+          name: gradle-repo
+    - name: docker
+      image: docker:latest
+      command:
+        - cat
+      tty: true
+      volumeMounts:
+        - mountPath: /var/run/docker.sock
+          name: docker-sock
+    - name: kubectl
+      image: alpine/k8s:1.22.13
+      command:
+        - cat
+      tty: true
+  volumes:
+    - name: docker-sock
+      hostPath:
+        path: /var/run/docker.sock
+    - name: gradle-repo
+      persistentVolumeClaim:
+        claimName: gradle-repo

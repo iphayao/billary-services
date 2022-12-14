@@ -1,0 +1,45 @@
+pipeline {
+    agent {
+        kubernetes {
+          yamlFile 'k8s/KubernetesPod.yaml'
+        }
+    }
+    stages {
+        stage('Build') {
+            steps {
+                container('gradle') {
+                    sh 'gradle clean build -x test'
+                }
+            }
+        }
+        stage('Test') {
+            steps {
+                container('gradle') {
+                    sh 'gradle -v'
+                }
+            }
+        }
+        stage('Build Image') {
+            steps {
+                container('docker') {
+                     sh 'docker build -t localhost:32000/billary-sales-service .'
+                }
+            }
+        }
+        stage('Push Image') {
+            steps {
+                container('docker') {
+                     sh 'docker push localhost:32000/billary-sales-service'
+                }
+            }
+        }
+        stage('Deployment') {
+            steps {
+                container('kubectl') {
+                     sh 'kubectl delete -f k8s/Deployment.yaml -n default --ignore-not-found=true'
+                     sh 'kubectl apply -f k8s/Deployment.yaml -n default'
+                }
+            }
+        }
+    }
+}

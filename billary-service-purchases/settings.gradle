@@ -1,0 +1,6 @@
+rootProject.name = 'billary-service-purchases'
+include 'billary-repo'
+include 'billary-common'
+
+project(':billary-repo').projectDir = file("../billary-repo")
+project(':billary-common').projectDir = file("../billary-common")
