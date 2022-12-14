@@ -7,7 +7,7 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                dir('billary-service-sales') {
+                dir('billary-service-accounting') {
                     container('gradle') {
                         sh 'gradle clean build -x test'
                     }
@@ -16,7 +16,7 @@ pipeline {
         }
         stage('Test') {
             steps {
-                dir('billary-service-sales') {
+                dir('billary-service-accounting') {
                     container('gradle') {
                         sh 'gradle -v'
                     }
@@ -25,25 +25,25 @@ pipeline {
         }
         stage('Build Image') {
             steps {
-                dir('billary-service-sales') {
+                dir('billary-service-accounting') {
                     container('docker') {
-                         sh 'docker build -t localhost:32000/billary-sale-service .'
+                         sh 'docker build -t localhost:32000/billary-accounting-service .'
                     }
                 }
             }
         }
         stage('Push Image') {
             steps {
-                dir('billary-service-sales') {
+                dir('billary-service-accounting') {
                     container('docker') {
-                         sh 'docker push localhost:32000/billary-sale-service'
+                         sh 'docker push localhost:32000/billary-accounting-service'
                     }
                 }
             }
         }
         stage('Deployment') {
             steps {
-                dir('billary-service-sales') {
+                dir('billary-service-accounting') {
                     container('kubectl') {
                          sh 'kubectl delete -f k8s/Deployment.yaml -n default --ignore-not-found=true'
                          sh 'kubectl apply -f k8s/Deployment.yaml -n default'
