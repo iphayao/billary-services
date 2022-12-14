@@ -1,4 +1,4 @@
-package th.co.readypaper.billary.accounting.tax.model;
+package th.co.readypaper.billary.accounting.wht.model;
 
 import lombok.Data;
 

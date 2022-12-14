@@ -1,10 +1,10 @@
-package th.co.readypaper.billary.accounting.tax;
+package th.co.readypaper.billary.accounting.wht;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import th.co.readypaper.billary.accounting.tax.model.TaxType;
-import th.co.readypaper.billary.accounting.tax.model.WithholdingTax;
-import th.co.readypaper.billary.accounting.tax.model.WithholdingTaxReport;
+import th.co.readypaper.billary.accounting.wht.model.TaxType;
+import th.co.readypaper.billary.accounting.wht.model.WithholdingTax;
+import th.co.readypaper.billary.accounting.wht.model.WithholdingTaxReport;
 import th.co.readypaper.billary.repo.entity.expense.Expense;
 import th.co.readypaper.billary.repo.repository.CompanyRepository;
 import th.co.readypaper.billary.repo.repository.ExpenseRepository;
@@ -106,4 +106,5 @@ public class WithholdingTaxService {
     private boolean isCompany(String contactName) {
         return contactName.contains("บริษัท");
     }
+
 }

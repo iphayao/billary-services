@@ -27,15 +27,18 @@ public class ValueAddedTaxService {
     private final InvoiceRepository invoiceRepository;
     private final ExpenseRepository expenseRepository;
     private final ValueAddedTaxMapper valueAddedTaxMapper;
+    private final ValueAddedTaxGenerator valueAddedTaxGenerator;
 
     public ValueAddedTaxService(CompanyRepository companyRepository,
                                 InvoiceRepository invoiceRepository,
                                 ExpenseRepository expenseRepository,
-                                ValueAddedTaxMapper valueAddedTaxMapper) {
+                                ValueAddedTaxMapper valueAddedTaxMapper,
+                                ValueAddedTaxGenerator valueAddedTaxGenerator) {
         this.companyRepository = companyRepository;
         this.invoiceRepository = invoiceRepository;
         this.expenseRepository = expenseRepository;
         this.valueAddedTaxMapper = valueAddedTaxMapper;
+        this.valueAddedTaxGenerator = valueAddedTaxGenerator;
     }
 
     public Optional<ValueAddedTaxReport> findOutputTax(Integer year, Integer month) {
@@ -122,6 +125,18 @@ public class ValueAddedTaxService {
                         .build());
     }
 
+    public Optional<byte[]> generateOutputTax(Integer year, Integer month) {
+        log.info("Generate Output Tax for Year: {}, Month: {}", year, month);
+        return findOutputTax(year, month)
+                .map(valueAddedTaxGenerator::generate);
+    }
+
+    public Optional<byte[]> generateInputTax(Integer year, Integer month) {
+        log.info("Generate Input Tax for Year: {}, Month: {}", year, month);
+        return findInputTax(year, month)
+                .map(valueAddedTaxGenerator::generate);
+    }
+
     private boolean isInputTax(Expense expense) {
         //return expense.getIsInputTax() != null && expense.getIsInputTax();
         if(expense.isUseInputTax()) {
@@ -154,5 +169,4 @@ public class ValueAddedTaxService {
     private BigDecimal amountOf(BigDecimal amount) {
         return (amount != null) ? amount.setScale(2, RoundingMode.HALF_UP) : BigDecimal.valueOf(0.00);
     }
-
 }

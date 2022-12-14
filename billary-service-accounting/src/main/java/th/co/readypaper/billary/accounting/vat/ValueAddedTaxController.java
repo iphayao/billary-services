@@ -1,23 +1,21 @@
 package th.co.readypaper.billary.accounting.vat;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import th.co.readypaper.billary.accounting.vat.model.ValueAddedTaxReport;
 import th.co.readypaper.billary.common.model.ApiResponse;
 
 import java.util.Optional;
 
-@Slf4j
+import static th.co.readypaper.billary.common.utils.FileNameUtils.attachment;
+
 @RestController
 @RequestMapping("/vat")
 public class ValueAddedTaxController {
     private final ValueAddedTaxService valueAddedTaxService;
 
     public ValueAddedTaxController(ValueAddedTaxService valueAddedTaxService) {
-        log.info("Hello");
         this.valueAddedTaxService = valueAddedTaxService;
     }
 
@@ -28,10 +26,34 @@ public class ValueAddedTaxController {
                 .map(ApiResponse::success);
     }
 
+    @PostMapping("/output-tax")
+    public ResponseEntity<byte[]> exportOutputTax(@RequestParam Integer year,
+                                                  @RequestParam Integer month) {
+        return valueAddedTaxService.generateOutputTax(year, month)
+                .map(data -> ResponseEntity.ok()
+                        .headers(attachment("ภาษีมูลค่าเพิ่ม-ภาษีขาย", year, month))
+                        .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                        .body(data))
+                .orElseThrow();
+    }
+
     @GetMapping("/input-tax")
     public Optional<ApiResponse<ValueAddedTaxReport>> getInputTax(@RequestParam Integer year,
                                                                   @RequestParam Integer month) {
         return valueAddedTaxService.findInputTax(year, month)
                 .map(ApiResponse::success);
     }
+
+    @PostMapping("/input-tax")
+    public ResponseEntity<byte[]> exportInputTax(@RequestParam Integer year,
+                                                 @RequestParam Integer month) {
+        return valueAddedTaxService.generateInputTax(year, month)
+                .map(data -> ResponseEntity.ok()
+                        .headers(attachment("ภาษีมูลค่าเพิ่ม-ภาษีซื้อ", year, month))
+                        .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                        .body(data))
+                .orElseThrow();
+
+    }
+
 }

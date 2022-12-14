@@ -1,10 +1,10 @@
-package th.co.readypaper.billary.accounting.tax;
+package th.co.readypaper.billary.accounting.wht;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import th.co.readypaper.billary.accounting.tax.model.WithholdingTaxReport;
+import th.co.readypaper.billary.accounting.wht.model.WithholdingTaxReport;
 import th.co.readypaper.billary.common.model.ApiResponse;
 
 import java.util.Optional;
