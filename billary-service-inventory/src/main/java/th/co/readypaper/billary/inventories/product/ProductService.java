@@ -1,6 +1,7 @@
 package th.co.readypaper.billary.inventories.product;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import th.co.readypaper.billary.inventories.product.model.ProductDto;
 import th.co.readypaper.billary.repo.entity.product.*;
@@ -47,7 +48,7 @@ public class ProductService {
     }
 
     public List<ProductDto> findAllProducts() {
-        return productRepository.findAll().stream()
+        return productRepository.findAll(Sort.by(Sort.Direction.ASC, "code")).stream()
                 .map(productMapper::toDto)
                 .collect(Collectors.toList());
     }
