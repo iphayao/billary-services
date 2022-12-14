@@ -27,7 +27,7 @@ pipeline {
             steps {
                 dir('billary-service-sales') {
                     container('docker') {
-                         sh 'docker build -t localhost:32000/billary-sale-service .'
+                         sh 'docker build -t localhost:32000/billary-sales-service .'
                     }
                 }
             }
@@ -36,7 +36,7 @@ pipeline {
             steps {
                 dir('billary-service-sales') {
                     container('docker') {
-                         sh 'docker push localhost:32000/billary-sale-service'
+                         sh 'docker push localhost:32000/billary-sales-service'
                     }
                 }
             }
