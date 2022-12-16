@@ -10,4 +10,5 @@ import java.util.UUID;
 
 public interface ExpenseRepository extends JpaRepository<Expense, UUID>, JpaSpecificationExecutor<Expense> {
     List<Expense> findByIssuedDateBetween(LocalDate startDate, LocalDate endDate);
+    List<Expense> findByIssuedDateBetweenOrderByIssuedDateAscDocumentIdAsc(LocalDate startDate, LocalDate endDate);
 }

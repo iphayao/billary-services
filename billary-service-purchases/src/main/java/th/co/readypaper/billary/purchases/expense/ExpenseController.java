@@ -66,6 +66,14 @@ public class ExpenseController {
         expenseService.deleteExpenseById(id);
     }
 
+    @PostMapping("/reorder")
+    public Optional<ApiResponse<List<ExpenseDto>>>  reOrderDocumentId(@RequestParam Integer year,
+                                                                      @RequestParam Integer month) {
+        List<ExpenseDto> expenses = expenseService.reOrderDocumentIdByDate(year, month);
+        return Optional.of(expenses)
+                .map(ApiResponse::success);
+    }
+
     @GetMapping("/vat-types")
     public Optional<ApiResponse<List<ExpenseVatTypeDto>>> getExpenseVatType() {
         List<ExpenseVatTypeDto> expenseVatTypes = expenseService.findAllProductVatType();

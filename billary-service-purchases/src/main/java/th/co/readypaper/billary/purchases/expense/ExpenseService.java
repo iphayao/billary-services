@@ -1,7 +1,6 @@
 package th.co.readypaper.billary.purchases.expense;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.math3.analysis.function.Exp;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -13,17 +12,22 @@ import th.co.readypaper.billary.common.model.dto.expense.ExpenseVatTypeDto;
 import th.co.readypaper.billary.common.model.dto.expense.WithholdingTaxPercentDto;
 import th.co.readypaper.billary.common.service.DocumentIdBaseService;
 import th.co.readypaper.billary.common.model.dto.expense.ExpenseDto;
+import th.co.readypaper.billary.common.utils.DateUtils;
 import th.co.readypaper.billary.repo.entity.expense.Expense;
 import th.co.readypaper.billary.repo.entity.expense.ExpenseStatus;
 import th.co.readypaper.billary.repo.repository.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static org.springframework.data.jpa.domain.Specification.where;
+import static th.co.readypaper.billary.common.utils.DateUtils.firstDayOf;
+import static th.co.readypaper.billary.common.utils.DateUtils.lastDayOf;
 
 @Slf4j
 @Service
@@ -146,5 +150,26 @@ public class ExpenseService extends DocumentIdBaseService {
         log.info("Delete expense by ID: {}", id);
         expenseRepository.findById(id)
                 .ifPresent(expenseRepository::delete);
+    }
+
+    public List<ExpenseDto> reOrderDocumentIdByDate(Integer year, Integer month) {
+        log.info("Reorder DocumentId by Issue Date, Year: {}, Month: {}", year, month);
+        LocalDate firstDay = firstDayOf(year, month);
+        LocalDate lastDay = lastDayOf(year, month);
+
+        log.info("First day : {}", firstDay);
+        log.info("Last day  : {}", lastDay);
+
+        AtomicInteger count = new AtomicInteger(1);
+
+        return expenseRepository.findByIssuedDateBetweenOrderByIssuedDateAscDocumentIdAsc(firstDay, lastDay).stream()
+                .map(expense -> {
+                    String documentId = DateUtils.generate("EX", year, month, count.getAndIncrement());
+                    log.info("Expense: {}/{}/{}", expense.getDocumentId(), expense.getIssuedDate(), documentId);
+                    expense.setDocumentId(documentId);
+                    return expenseRepository.save(expense);
+                })
+                .map(expenseMapper::toDto)
+                .collect(Collectors.toList());
     }
 }
