@@ -4,8 +4,8 @@ server:
     context-path: /company
 spring:
   datasource:
-    url: jdbc:postgresql://192.168.1.64:31064/billarydb
-#    url: jdbc:postgresql://localhost:5432/billarydb
+#    url: jdbc:postgresql://192.168.1.64:31064/billarydb
+    url: jdbc:postgresql://localhost:5432/billarydb
     username: postgres
     password: P@ssw0rd
     pool:
