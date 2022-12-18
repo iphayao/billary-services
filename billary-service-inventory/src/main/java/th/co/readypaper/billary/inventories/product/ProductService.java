@@ -1,8 +1,12 @@
 package th.co.readypaper.billary.inventories.product;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import th.co.readypaper.billary.common.model.ResultPage;
 import th.co.readypaper.billary.inventories.product.model.ProductDto;
 import th.co.readypaper.billary.repo.entity.product.*;
 import th.co.readypaper.billary.repo.repository.*;
@@ -51,6 +55,16 @@ public class ProductService {
         return productRepository.findAll(Sort.by(Sort.Direction.ASC, "code")).stream()
                 .map(productMapper::toDto)
                 .collect(Collectors.toList());
+    }
+
+    public ResultPage<ProductDto> findAllProducts(Integer page, Integer limit) {
+        log.info("Find all product, page: {}, limit: {}", page, limit);
+        Pageable pageable = PageRequest.of(page - 1, limit, Sort.by(Sort.Direction.ASC, "code"));
+
+        Page<Product> productPage = productRepository.findAll(pageable);
+        List<ProductDto> products = productPage.map(productMapper::toDto).toList();
+
+        return ResultPage.of(products, page, limit, (int) productPage.getTotalElements());
     }
 
     public Optional<ProductDto> findProductById(UUID id) {

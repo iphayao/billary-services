@@ -63,7 +63,6 @@ public class InvoiceService extends DocumentIdBaseService {
         return ResultPage.of(invoices, page, limit, (int) invoicePage.getTotalElements());
     }
 
-
     public Optional<InvoiceDto> findInvoiceById(UUID id) {
         log.info("Find invoice by ID: {}", id);
         return invoiceRepository.findById(id)

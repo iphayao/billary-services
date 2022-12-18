@@ -1,7 +1,9 @@
 package th.co.readypaper.billary.inventories.product;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 import th.co.readypaper.billary.common.model.ApiResponse;
+import th.co.readypaper.billary.common.model.ResultPage;
 import th.co.readypaper.billary.inventories.product.model.ProductDto;
 import th.co.readypaper.billary.repo.entity.product.*;
 
@@ -21,6 +23,14 @@ public class ProductController {
     @GetMapping
     public Optional<ApiResponse<List<ProductDto>>> getProducts() {
         List<ProductDto> products = productService.findAllProducts();
+        return Optional.of(products)
+                .map(ApiResponse::success);
+    }
+
+    @GetMapping(params = {"page", "limit"})
+    public Optional<ApiResponse<ResultPage<ProductDto>>> getProducts(@RequestParam Integer page,
+                                                                     @RequestParam Integer limit) {
+        ResultPage<ProductDto> products = productService.findAllProducts(page, limit);
         return Optional.of(products)
                 .map(ApiResponse::success);
     }
