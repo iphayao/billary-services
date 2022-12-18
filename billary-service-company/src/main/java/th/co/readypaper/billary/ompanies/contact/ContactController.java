@@ -2,9 +2,13 @@ package th.co.readypaper.billary.ompanies.contact;
 
 import org.springframework.web.bind.annotation.*;
 import th.co.readypaper.billary.common.model.ApiResponse;
-import th.co.readypaper.billary.ompanies.contact.model.ContactDto;
+import th.co.readypaper.billary.common.model.ResultPage;
+import th.co.readypaper.billary.common.model.dto.contact.BusinessTypeDto;
+import th.co.readypaper.billary.common.model.dto.contact.ContactDto;
+import th.co.readypaper.billary.common.model.dto.contact.ContactTypeDto;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -20,6 +24,15 @@ public class ContactController {
     @GetMapping
     public Optional<ApiResponse<List<ContactDto>>> getContacts() {
         return Optional.of(contactService.getAllContact())
+                .map(ApiResponse::success);
+    }
+
+    @GetMapping(params = {"page", "limit"})
+    public Optional<ApiResponse<ResultPage<ContactDto>>> getContacts(@RequestParam Integer page,
+                                                                     @RequestParam Integer limit,
+                                                                     @RequestParam Map<String, Object> params) {
+        ResultPage<ContactDto> contacts = contactService.findAllContacts(page, limit, params);
+        return Optional.of(contacts)
                 .map(ApiResponse::success);
     }
 
@@ -44,6 +57,25 @@ public class ContactController {
     @PutMapping("/{id}")
     public Optional<ApiResponse<ContactDto>> putContact(@PathVariable UUID id, @RequestBody ContactDto updateContact) {
         return contactService.updateContactById(id, updateContact)
+                .map(ApiResponse::success);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteContact(@PathVariable UUID id) {
+        contactService.deleteContactById(id);
+    }
+
+    @GetMapping("/contact-types")
+    public Optional<ApiResponse<List<ContactTypeDto>>> getContactTypes() {
+        List<ContactTypeDto> contactTypes = contactService.findContactTypes();
+        return Optional.of(contactTypes)
+                .map(ApiResponse::success);
+    }
+
+    @GetMapping("/business-types")
+    public Optional<ApiResponse<List<BusinessTypeDto>>> getBusinessTypes() {
+        List<BusinessTypeDto> businessTypes = contactService.findBusinessTypes();
+        return Optional.of(businessTypes)
                 .map(ApiResponse::success);
     }
 

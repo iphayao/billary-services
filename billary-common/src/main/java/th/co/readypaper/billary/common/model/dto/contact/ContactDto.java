@@ -13,5 +13,6 @@ public class ContactDto {
     private String email;
     private String person;
     private String phone;
-    private int typeId;
+    private ContactTypeDto type;
+    private BusinessTypeDto businessType;
 }

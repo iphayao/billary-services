@@ -3,10 +3,7 @@ package th.co.readypaper.billary.repo.entity.contact;
 import lombok.Data;
 import th.co.readypaper.billary.repo.entity.AuditableCompanyEntity;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.UUID;
 
 @Data
@@ -23,5 +20,10 @@ public class Contact extends AuditableCompanyEntity {
     private String email;
     private String person;
     private String phone;
-    private int typeId;
+    @ManyToOne
+    @JoinColumn(name = "contact_type_id")
+    private ContactType type;
+    @ManyToOne
+    @JoinColumn(name = "business_type_id")
+    private BusinessType businessType;
 }
