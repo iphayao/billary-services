@@ -106,15 +106,16 @@ public class ReceiptService extends DocumentIdBaseService {
     public Optional<ReceiptDto> updateReceiptById(UUID id, ReceiptDto updateReceiptDto) {
         log.info("Update receipt by ID: {}", id);
         Receipt updateReceiptEntity = receiptMapper.toEntity(updateReceiptDto);
-        if (updateReceiptEntity.getPayment() != null) {
-            updateReceiptEntity.setStatus(ReceiptStatus.PAID);
-        }
-
         return receiptRepository.findById(id)
                 .map(receipt -> {
                     Receipt mappedReceipt = receiptMapper.update(receipt, updateReceiptEntity);
                     if (mappedReceipt.getPayment() != null) {
-                        mappedReceipt.getPayment().setReceipt(mappedReceipt);
+                        if(mappedReceipt.getPayment().getReceipt() == null) {
+                            mappedReceipt.getPayment().setReceipt(mappedReceipt);
+                        }
+                        mappedReceipt.setStatus(ReceiptStatus.PAID);
+                    } else {
+                        mappedReceipt.setStatus(ReceiptStatus.SUBMITTED);
                     }
                     mappedReceipt.setLineItems(mappedReceipt.getLineItems().stream()
                             .map(receiptLineItem -> {
