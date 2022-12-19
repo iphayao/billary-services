@@ -27,7 +27,7 @@ public class Receipt extends AuditableCompanyEntity {
     private LocalDate dueDate;
     private int creditDay;
     private int lineVatTypeId;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "status_id")
     private ReceiptStatus status;
     private String saleName;
@@ -49,6 +49,7 @@ public class Receipt extends AuditableCompanyEntity {
     private String remark;
     @OneToOne(mappedBy = "receipt",
             fetch = FetchType.LAZY,
-            cascade = CascadeType.ALL)
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
     private ReceiptPayment payment;
 }

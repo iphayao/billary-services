@@ -10,18 +10,14 @@ import th.co.readypaper.billary.common.model.ResultPage;
 import th.co.readypaper.billary.repo.entity.invoice.InvoiceStatus;
 import th.co.readypaper.billary.repo.entity.receipt.Receipt;
 import th.co.readypaper.billary.repo.entity.receipt.ReceiptStatus;
-import th.co.readypaper.billary.repo.repository.CompanyRepository;
+import th.co.readypaper.billary.repo.repository.*;
 import th.co.readypaper.billary.common.service.DocumentIdBaseService;
 import th.co.readypaper.billary.sales.common.model.document.DocumentDto;
 import th.co.readypaper.billary.sales.common.model.document.DocumentType;
-import th.co.readypaper.billary.repo.repository.DocumentRepository;
-import th.co.readypaper.billary.repo.repository.DocumentSerialRepository;
-import th.co.readypaper.billary.repo.repository.InvoiceRepository;
 import th.co.readypaper.billary.sales.receipt.model.dto.ReceiptDto;
 import th.co.readypaper.billary.sales.receipt.model.dto.ReceiptPaymentTypeDto;
-import th.co.readypaper.billary.repo.repository.PaymentTypeRepository;
-import th.co.readypaper.billary.repo.repository.ReceiptRepository;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -102,7 +98,7 @@ public class ReceiptService extends DocumentIdBaseService {
         return Optional.of(savedReceiptEntity).map(receiptMapper::toDto);
     }
 
-
+    @Transactional
     public Optional<ReceiptDto> updateReceiptById(UUID id, ReceiptDto updateReceiptDto) {
         log.info("Update receipt by ID: {}", id);
         Receipt updateReceiptEntity = receiptMapper.toEntity(updateReceiptDto);
@@ -118,13 +114,15 @@ public class ReceiptService extends DocumentIdBaseService {
                         mappedReceipt.setStatus(ReceiptStatus.SUBMITTED);
                     }
                     mappedReceipt.setLineItems(mappedReceipt.getLineItems().stream()
-                            .map(receiptLineItem -> {
-                                receiptLineItem.setReceipt(mappedReceipt);
-                                return receiptLineItem;
-                            }).collect(Collectors.toList()));
+                            .peek(receiptLineItem -> receiptLineItem.setReceipt(mappedReceipt))
+                            .collect(Collectors.toList()));
 
                     return receiptRepository.save(mappedReceipt);
                 })
+//                .map(receipt -> {
+//                    entityManager.refresh(receipt);
+//                    return receipt;
+//                })
                 .map(receiptMapper::toDto);
     }
 
