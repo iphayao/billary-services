@@ -6,6 +6,7 @@ import org.mapstruct.MappingTarget;
 import org.mapstruct.Mappings;
 import th.co.readypaper.billary.repo.entity.receipt.Receipt;
 import th.co.readypaper.billary.repo.entity.receipt.ReceiptLineItem;
+import th.co.readypaper.billary.repo.entity.receipt.ReceiptPayment;
 import th.co.readypaper.billary.repo.entity.receipt.ReceiptPaymentType;
 import th.co.readypaper.billary.common.model.LineItemMapper;
 import th.co.readypaper.billary.sales.common.model.document.DocumentDto;
@@ -46,6 +47,16 @@ public interface ReceiptMapper extends LineItemMapper<ReceiptLineItem> {
             @Mapping(target = "updatedBy", ignore = true),
     })
     ReceiptLineItem update(@MappingTarget ReceiptLineItem target, ReceiptLineItem source);
+
+    @Mappings({
+            @Mapping(target = "id", ignore = true),
+            @Mapping(target = "receipt", ignore = true),
+            @Mapping(target = "createdAt", ignore = true),
+            @Mapping(target = "createdBy", ignore = true),
+            @Mapping(target = "updatedAt", ignore = true),
+            @Mapping(target = "updatedBy", ignore = true),
+    })
+    ReceiptPayment update(@MappingTarget ReceiptPayment target, ReceiptPayment source);
 
     DocumentDto toDocument(Receipt receipt);
 
