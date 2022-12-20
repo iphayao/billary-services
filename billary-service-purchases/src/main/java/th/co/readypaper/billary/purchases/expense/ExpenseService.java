@@ -31,7 +31,7 @@ import static th.co.readypaper.billary.common.utils.DateUtils.lastDayOf;
 
 @Slf4j
 @Service
-public class ExpenseService extends DocumentIdBaseService {
+public class ExpenseService extends DocumentIdBaseService<Expense> {
     private final ExpenseRepository expenseRepository;
     private final ExpenseVatTypeRepository expenseVatTypeRepository;
     private final WithholdingTaxPercentRepository withholdingTaxPercentRepository;
@@ -51,21 +51,13 @@ public class ExpenseService extends DocumentIdBaseService {
         this.expenseMapper = expenseMapper;
     }
 
-    private Specification<Expense> hasContactName(String contact) {
-        return (expense, cq, cb) -> cb.like(expense.get("contact").get("name"), "%" + contact + "%");
-    }
-
-    private Specification<Expense> hasDocumentId(String documentId) {
-        return (expense, cq, cb) -> cb.like(expense.get("documentId"), "%" + documentId + "%");
-    }
-
     public ResultPage<ExpenseDto> findAllExpenses(Integer page, Integer limit, Map<String, Object> params) {
         log.info("Find all expense, page: {}, limit: {}, params: {}", page, limit, params);
         Pageable pageable = PageRequest.of(page - 1, limit, Sort.by(Sort.Direction.DESC, "documentId"));
 
         Page<Expense> expensePage = expenseRepository.findAll(
-                where(hasDocumentId((String) params.get("documentId")))
-                        .and(hasContactName((String) params.get("contact"))),
+                where(hasDocumentId(params.get("documentId")))
+                        .and(hasContactName(params.get("contact"))),
                 pageable);
         List<ExpenseDto> expenses = expensePage.map(expenseMapper::toDto).toList();
 

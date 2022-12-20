@@ -24,9 +24,11 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static org.springframework.data.jpa.domain.Specification.where;
+
 @Slf4j
 @Service
-public class ReceiptService extends DocumentIdBaseService {
+public class ReceiptService extends DocumentIdBaseService<Receipt> {
     private final ReceiptRepository receiptRepository;
     private final InvoiceRepository invoiceRepository;
     private final PaymentTypeRepository paymentTypeRepository;
@@ -53,7 +55,7 @@ public class ReceiptService extends DocumentIdBaseService {
         log.info("Find all receipt, page: {}, limit: {}, params: {}", page, limit, params);
         Pageable pageable = PageRequest.of(page - 1, limit, Sort.by(Sort.Direction.DESC, "documentId"));
 
-        Page<Receipt> receiptPage = receiptRepository.findAll(pageable);
+        Page<Receipt> receiptPage = receiptRepository.findAll(filterByParams(params), pageable);
         List<ReceiptDto> receipts = receiptPage.map(receiptMapper::toDto).toList();
 
         return ResultPage.of(receipts, page, limit, (int) receiptPage.getTotalElements());
@@ -106,7 +108,7 @@ public class ReceiptService extends DocumentIdBaseService {
                 .map(receipt -> {
                     Receipt mappedReceipt = receiptMapper.update(receipt, updateReceiptEntity);
                     if (mappedReceipt.getPayment() != null) {
-                        if(mappedReceipt.getPayment().getReceipt() == null) {
+                        if (mappedReceipt.getPayment().getReceipt() == null) {
                             mappedReceipt.getPayment().setReceipt(mappedReceipt);
                         }
                         mappedReceipt.setStatus(ReceiptStatus.PAID);

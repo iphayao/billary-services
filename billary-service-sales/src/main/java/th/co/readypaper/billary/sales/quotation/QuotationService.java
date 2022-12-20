@@ -23,9 +23,11 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static org.springframework.data.jpa.domain.Specification.where;
+
 @Slf4j
 @Service
-public class QuotationService extends DocumentIdBaseService {
+public class QuotationService extends DocumentIdBaseService<Quotation> {
     private final QuotationRepository quotationRepository;
     private final QuotationMapper quotationMapper;
     private final QuotationDocument quotationDocument;
@@ -53,7 +55,7 @@ public class QuotationService extends DocumentIdBaseService {
         log.info("Find all quotations, page: {}, limit: {}, params: {}", page, limit, params);
         Pageable pageable = PageRequest.of(page - 1, limit, Sort.by(Sort.Direction.DESC, "documentId"));
 
-        Page<Quotation> quotationPage = quotationRepository.findAll(pageable);
+        Page<Quotation> quotationPage = quotationRepository.findAll(filterByParams(params), pageable);
         List<QuotationDto> quotations = quotationPage.map(quotationMapper::toDto).toList();
 
         return ResultPage.of(quotations, page, limit, (int) quotationPage.getTotalElements());

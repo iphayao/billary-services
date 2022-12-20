@@ -24,9 +24,11 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static org.springframework.data.jpa.domain.Specification.where;
+
 @Slf4j
 @Service
-public class InvoiceService extends DocumentIdBaseService {
+public class InvoiceService extends DocumentIdBaseService<Invoice> {
     private final InvoiceRepository invoiceRepository;
     private final BillingNoteRepository billingNoteRepository;
     private final InvoiceMapper invoiceMapper;
@@ -57,7 +59,7 @@ public class InvoiceService extends DocumentIdBaseService {
         log.info("Find all invoice, page: {}, limit: {}, params: {}", page, limit, page);
         Pageable pageable = PageRequest.of(page - 1, limit, Sort.by(Sort.Direction.DESC, "documentId"));
 
-        Page<Invoice> invoicePage = invoiceRepository.findAll(pageable);
+        Page<Invoice> invoicePage = invoiceRepository.findAll(filterByParams(params), pageable);
         List<InvoiceDto> invoices = invoicePage.map(invoiceMapper::toDto).toList();
 
         return ResultPage.of(invoices, page, limit, (int) invoicePage.getTotalElements());

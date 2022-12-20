@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import th.co.readypaper.billary.common.model.ResultPage;
 import th.co.readypaper.billary.repo.entity.billing.BillingNote;
@@ -23,9 +24,11 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static org.springframework.data.jpa.domain.Specification.where;
+
 @Slf4j
 @Service
-public class BillingNoteService extends DocumentIdBaseService {
+public class BillingNoteService extends DocumentIdBaseService<BillingNote> {
     private final BillingNoteRepository billingNoteRepository;
     private final BillingNoteMapper billingNoteMapper;
     private final BillingNoteDocument billingNoteDocument;
@@ -46,7 +49,7 @@ public class BillingNoteService extends DocumentIdBaseService {
         log.info("Find all billing note, page: {}, limit: {}, params: {}", page, limit, params);
         Pageable pageable = PageRequest.of(page - 1, limit, Sort.by(Sort.Direction.DESC, "documentId"));
 
-        Page<BillingNote> billingNotePage = billingNoteRepository.findAll(pageable);
+        Page<BillingNote> billingNotePage = billingNoteRepository.findAll(filterByParams(params), pageable);
         List<BillingNoteDto> billingNotes = billingNotePage.map(billingNoteMapper::toDto).toList();
 
         return ResultPage.of(billingNotes, page, limit, (int) billingNotePage.getTotalElements());
