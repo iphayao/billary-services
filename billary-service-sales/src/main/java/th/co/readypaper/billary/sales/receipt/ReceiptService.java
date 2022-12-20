@@ -119,10 +119,6 @@ public class ReceiptService extends DocumentIdBaseService {
 
                     return receiptRepository.save(mappedReceipt);
                 })
-//                .map(receipt -> {
-//                    entityManager.refresh(receipt);
-//                    return receipt;
-//                })
                 .map(receiptMapper::toDto);
     }
 

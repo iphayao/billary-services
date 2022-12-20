@@ -23,6 +23,7 @@ public interface ContactMapper {
 
     @Mappings({
             @Mapping(target = "id", ignore = true),
+            @Mapping(target = "company", ignore = true),
             @Mapping(target = "createdAt", ignore = true),
             @Mapping(target = "createdBy", ignore = true),
             @Mapping(target = "updatedAt", ignore = true),
