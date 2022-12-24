@@ -6,5 +6,6 @@ import lombok.Data;
 public class AccountChartGroupDto {
     private Integer id;
     private String name;
+    private String code;
     private String description;
 }

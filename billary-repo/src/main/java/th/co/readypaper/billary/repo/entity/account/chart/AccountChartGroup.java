@@ -14,5 +14,6 @@ public class AccountChartGroup extends AuditableEntity<Integer> {
     @Id
     private Integer id;
     private String name;
+    private String code;
     private String description;
 }
