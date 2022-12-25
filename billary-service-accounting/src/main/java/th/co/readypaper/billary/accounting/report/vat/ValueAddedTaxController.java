@@ -1,9 +1,9 @@
-package th.co.readypaper.billary.accounting.vat;
+package th.co.readypaper.billary.accounting.report.vat;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import th.co.readypaper.billary.accounting.vat.model.ValueAddedTaxReport;
+import th.co.readypaper.billary.accounting.report.vat.model.ValueAddedTaxReport;
 import th.co.readypaper.billary.common.model.ApiResponse;
 
 import java.util.Optional;
@@ -11,7 +11,7 @@ import java.util.Optional;
 import static th.co.readypaper.billary.common.utils.FileNameUtils.attachment;
 
 @RestController
-@RequestMapping("/vat")
+@RequestMapping("/report/vat")
 public class ValueAddedTaxController {
     private final ValueAddedTaxService valueAddedTaxService;
 

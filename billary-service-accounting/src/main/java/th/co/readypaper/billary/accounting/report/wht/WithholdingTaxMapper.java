@@ -1,8 +1,8 @@
-package th.co.readypaper.billary.accounting.wht;
+package th.co.readypaper.billary.accounting.report.wht;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import th.co.readypaper.billary.accounting.wht.model.WithholdingTax;
+import th.co.readypaper.billary.accounting.report.wht.model.WithholdingTax;
 import th.co.readypaper.billary.repo.entity.expense.Expense;
 
 @Mapper(componentModel = "spring")

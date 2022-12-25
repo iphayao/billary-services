@@ -1,4 +1,4 @@
-package th.co.readypaper.billary.accounting.wht.model;
+package th.co.readypaper.billary.accounting.report.vat.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,9 +10,10 @@ import java.util.List;
 
 @Data
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
-public class WithholdingTaxReport {
+@AllArgsConstructor
+public class ValueAddedTaxReport {
+    private VatReportType type;
     private String taxYear;
     private String taxMonth;
     private String taxName;
@@ -20,8 +21,8 @@ public class WithholdingTaxReport {
     private String taxOffice;
     private String taxAddress;
     private String taxOrganisation;
-    private List<WithholdingTax> entries;
-    private BigDecimal totalPaymentAmount;
-    private BigDecimal totalPaidAmount;
-    private BigDecimal totalWithholdingTaxAmount;
+    private List<ValueAddedTax> entries;
+    private BigDecimal totalVatableAmount;
+    private BigDecimal totalVatAmount;
+    private BigDecimal totalAmount;
 }

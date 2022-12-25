@@ -1,4 +1,4 @@
-package th.co.readypaper.billary.accounting.vat.model;
+package th.co.readypaper.billary.accounting.report.vat.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

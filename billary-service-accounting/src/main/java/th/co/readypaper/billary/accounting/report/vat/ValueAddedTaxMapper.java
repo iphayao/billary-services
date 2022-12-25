@@ -1,8 +1,8 @@
-package th.co.readypaper.billary.accounting.vat;
+package th.co.readypaper.billary.accounting.report.vat;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import th.co.readypaper.billary.accounting.vat.model.ValueAddedTax;
+import th.co.readypaper.billary.accounting.report.vat.model.ValueAddedTax;
 import th.co.readypaper.billary.repo.entity.expense.Expense;
 import th.co.readypaper.billary.repo.entity.invoice.Invoice;
 

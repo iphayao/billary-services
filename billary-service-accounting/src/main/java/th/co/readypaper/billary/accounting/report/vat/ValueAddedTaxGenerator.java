@@ -1,4 +1,4 @@
-package th.co.readypaper.billary.accounting.vat;
+package th.co.readypaper.billary.accounting.report.vat;
 
 import org.apache.poi.hssf.usermodel.HSSFDataFormat;
 import org.apache.poi.ss.usermodel.*;
@@ -6,8 +6,8 @@ import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Component;
-import th.co.readypaper.billary.accounting.vat.model.ValueAddedTaxReport;
-import th.co.readypaper.billary.accounting.vat.model.VatReportType;
+import th.co.readypaper.billary.accounting.report.vat.model.ValueAddedTaxReport;
+import th.co.readypaper.billary.accounting.report.vat.model.VatReportType;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

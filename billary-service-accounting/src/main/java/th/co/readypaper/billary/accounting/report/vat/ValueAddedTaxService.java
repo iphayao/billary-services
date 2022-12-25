@@ -1,10 +1,10 @@
-package th.co.readypaper.billary.accounting.vat;
+package th.co.readypaper.billary.accounting.report.vat;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import th.co.readypaper.billary.accounting.vat.model.ValueAddedTax;
-import th.co.readypaper.billary.accounting.vat.model.ValueAddedTaxReport;
-import th.co.readypaper.billary.accounting.vat.model.VatReportType;
+import th.co.readypaper.billary.accounting.report.vat.model.ValueAddedTaxReport;
+import th.co.readypaper.billary.accounting.report.vat.model.ValueAddedTax;
+import th.co.readypaper.billary.accounting.report.vat.model.VatReportType;
 import th.co.readypaper.billary.repo.entity.expense.Expense;
 import th.co.readypaper.billary.repo.repository.CompanyRepository;
 import th.co.readypaper.billary.repo.repository.ExpenseRepository;
