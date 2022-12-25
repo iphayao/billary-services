@@ -1,6 +1,7 @@
 package th.co.readypaper.billary.common.model;
 
 import lombok.Data;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -20,4 +21,7 @@ public class ResultPage<T> {
         return resultPage;
     }
 
+    public static <T> ResultPage<T> of(List<T> data, int page, int limit, long size) {
+        return of(data, page, limit, (int) size);
+    }
 }
