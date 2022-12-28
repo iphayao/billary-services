@@ -1,6 +1,6 @@
 package th.co.readypaper.billary.repo.entity.account.journal;
 
-import lombok.Data;
+import lombok.*;
 import th.co.readypaper.billary.repo.entity.AuditableEntity;
 
 import javax.persistence.*;
@@ -10,6 +10,10 @@ import java.util.UUID;
 
 @Data
 @Entity
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class GeneralJournal extends AuditableEntity<UUID> {
     @Id
     private UUID id;

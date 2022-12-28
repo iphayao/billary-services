@@ -1,9 +1,6 @@
 package th.co.readypaper.billary.accounting.report.journal;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import th.co.readypaper.billary.accounting.report.journal.model.GeneralJournalDto;
 import th.co.readypaper.billary.common.model.ApiResponse;
 
@@ -23,6 +20,15 @@ public class GeneralJournalController {
     public Optional<ApiResponse<List<GeneralJournalDto>>> getGeneralJournals(@RequestParam(required = false) Integer year,
                                                                              @RequestParam(required = false) Integer month) {
         var generalJournals =  generalJournalService.findAllGeneralJournal(year, month);
+        return Optional.of(generalJournals)
+                .map(ApiResponse::success);
+    }
+
+    @PostMapping
+    public Optional<ApiResponse<List<GeneralJournalDto>>> postGeneralJournal(@RequestParam Integer year,
+                                                                             @RequestParam(required = false) Integer month,
+                                                                             @RequestParam(required = false) Integer day) {
+        var generalJournals = generalJournalService.createGeneralJournal(year, month, day);
         return Optional.of(generalJournals)
                 .map(ApiResponse::success);
     }

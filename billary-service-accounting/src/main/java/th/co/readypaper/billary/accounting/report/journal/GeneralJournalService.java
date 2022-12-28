@@ -1,7 +1,10 @@
 package th.co.readypaper.billary.accounting.report.journal;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import th.co.readypaper.billary.accounting.report.journal.model.GeneralJournalDto;
+import th.co.readypaper.billary.repo.entity.account.journal.GeneralJournal;
+import th.co.readypaper.billary.repo.repository.InvoiceRepository;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -9,18 +12,29 @@ import java.util.List;
 import static th.co.readypaper.billary.common.utils.DateUtils.firstDayOf;
 import static th.co.readypaper.billary.common.utils.DateUtils.lastDayOf;
 
+@Slf4j
 @Service
 public class GeneralJournalService {
     private final GeneralJournalRepository generalJournalRepository;
     private final GeneralJournalMapper generalJournalMapper;
+    private final GeneralJournalBuilder generalJournalBuilder;
+
+    private final InvoiceRepository invoiceRepository;
 
     public GeneralJournalService(GeneralJournalRepository generalJournalRepository,
-                                 GeneralJournalMapper generalJournalMapper) {
+                                 GeneralJournalMapper generalJournalMapper,
+                                 GeneralJournalBuilder generalJournalBuilder,
+                                 InvoiceRepository invoiceRepository) {
         this.generalJournalRepository = generalJournalRepository;
         this.generalJournalMapper = generalJournalMapper;
+        this.generalJournalBuilder = generalJournalBuilder;
+        this.invoiceRepository = invoiceRepository;
     }
 
     public List<GeneralJournalDto> findAllGeneralJournal(Integer year, Integer month) {
+        log.info("Find all general journal ...");
+        log.info("Year: {}", year);
+        log.info("Month: {}", month);
         if (year == null || month == null) {
             return generalJournalRepository.findAll().stream()
                     .map(generalJournalMapper::toDto)
@@ -33,6 +47,42 @@ public class GeneralJournalService {
                     .map(generalJournalMapper::toDto)
                     .toList();
         }
+    }
+
+    public List<GeneralJournalDto> createGeneralJournal(Integer year, Integer month, Integer day) {
+        log.info("Create general journal ...");
+        log.info("Year: {}", year);
+        log.info("Month: {}", month);
+        log.info("Day: {}", month);
+
+        LocalDate firstDay;
+        LocalDate lastDay;
+
+        if (day != null) {
+            firstDay = LocalDate.of(year, month, day);
+            lastDay = LocalDate.of(year, month, day);
+        } else if (month != null) {
+            firstDay = firstDayOf(year, month);
+            lastDay = lastDayOf(year, month);
+        } else {
+            firstDay = firstDayOf(year);
+            lastDay = lastDayOf(year);
+        }
+
+        log.info("First day : {}", firstDay);
+        log.info("Last day  : {}", lastDay);
+
+        generalJournalRepository.deleteByDateBetween(firstDay, lastDay)
+                .ifPresent(deleted -> log.info("Deleted: {}", deleted));
+
+        List<GeneralJournal> generalJournals = invoiceRepository.findByIssuedDateBetween(firstDay, lastDay)
+                .stream()
+                .map(generalJournalBuilder::build)
+                .toList();
+
+        return generalJournals.stream()
+                .map(generalJournalMapper::toDto)
+                .toList();
     }
 
 }

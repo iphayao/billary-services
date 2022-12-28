@@ -1,7 +1,6 @@
 package th.co.readypaper.billary.repo.entity.account.journal;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 import th.co.readypaper.billary.repo.entity.AuditableEntity;
 
 import javax.persistence.Entity;
@@ -13,6 +12,9 @@ import java.util.UUID;
 
 @Data
 @Entity
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class GeneralJournalDebit extends AuditableEntity<UUID> {
     @Id
@@ -21,6 +23,6 @@ public class GeneralJournalDebit extends AuditableEntity<UUID> {
     @JoinColumn(name = "general_journal_id")
     private GeneralJournal generalJournal;
     private String code;
-    private String description;
+    private String desc;
     private BigDecimal amount;
 }
