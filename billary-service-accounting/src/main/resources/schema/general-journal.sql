@@ -4,7 +4,11 @@ create table general_journal (
     description     varchar(255) not null,
     type            varchar(255) not null,
     reference       uuid not null,
-    document_id     varchar(20) not null
+    document_id     varchar(20) not null,
+    created_at          timestamp not null,
+    created_by          varchar(255),
+    updated_at          timestamp not null,
+    updated_by          varchar(255)
 );
 
 create table general_journal_debit  (
@@ -12,7 +16,11 @@ create table general_journal_debit  (
     general_journal_id  uuid not null,
     code                varchar(20) not null,
     description         varchar(255) not null,
-    amount              numeric not null
+    amount              numeric not null,
+    created_at          timestamp not null,
+    created_by          varchar(255),
+    updated_at          timestamp not null,
+    updated_by          varchar(255)
 );
 
 create table general_journal_credit (
@@ -20,5 +28,9 @@ create table general_journal_credit (
     general_journal_id  uuid not null,
     code                varchar(20) not null,
     description         varchar(255) not null,
-    amount              numeric not null
+    amount              numeric not null,
+    created_at          timestamp not null,
+    created_by          varchar(255),
+    updated_at          timestamp not null,
+    updated_by          varchar(255)
 );

@@ -1,4 +1,4 @@
-package th.co.readypaper.billary.accounting.constant;
+package th.co.readypaper.billary.accounting.common;
 
 public class Constants {
     public static final String INVOICE_CREDIT_VAT_CODE = "2101";        // ภาษีขาย

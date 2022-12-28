@@ -2,15 +2,18 @@ package th.co.readypaper.billary.accounting.report.journal;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import th.co.readypaper.billary.accounting.common.model.AccountingYearlySummary;
 import th.co.readypaper.billary.accounting.report.journal.model.GeneralJournalDto;
 import th.co.readypaper.billary.repo.entity.account.journal.GeneralJournal;
 import th.co.readypaper.billary.repo.repository.InvoiceRepository;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-import static th.co.readypaper.billary.common.utils.DateUtils.firstDayOf;
-import static th.co.readypaper.billary.common.utils.DateUtils.lastDayOf;
+import static th.co.readypaper.billary.common.utils.DateUtils.*;
 
 @Slf4j
 @Service
@@ -49,6 +52,7 @@ public class GeneralJournalService {
         }
     }
 
+    @Transactional
     public List<GeneralJournalDto> createGeneralJournal(Integer year, Integer month, Integer day) {
         log.info("Create general journal ...");
         log.info("Year: {}", year);
@@ -75,9 +79,10 @@ public class GeneralJournalService {
         generalJournalRepository.deleteByDateBetween(firstDay, lastDay)
                 .ifPresent(deleted -> log.info("Deleted: {}", deleted));
 
-        List<GeneralJournal> generalJournals = invoiceRepository.findByIssuedDateBetween(firstDay, lastDay)
+        var generalJournals = invoiceRepository.findByIssuedDateBetween(firstDay, lastDay)
                 .stream()
                 .map(generalJournalBuilder::build)
+                .map(generalJournalRepository::save)
                 .toList();
 
         return generalJournals.stream()
@@ -85,4 +90,26 @@ public class GeneralJournalService {
                 .toList();
     }
 
+    public List<AccountingYearlySummary> findGeneralJournalYearlySummary(Integer year) {
+        List<AccountingYearlySummary> summaries = new ArrayList<>();
+
+        for (int i = 1; i < 12; i++) {
+            int month = i;
+
+            var firstDay = firstDayOf(year, month);
+            var lastDay = lastDayOf(year, month);
+
+            var summary = generalJournalRepository.countByDateBetween(firstDay, lastDay)
+                    .map(count -> AccountingYearlySummary.builder()
+                            .index(month)
+                            .year(year)
+                            .month(getFullMonthOf(month))
+                            .entryCount(count.intValue())
+                            .build());
+
+            summary.ifPresent(summaries::add);
+        }
+
+        return summaries;
+    }
 }

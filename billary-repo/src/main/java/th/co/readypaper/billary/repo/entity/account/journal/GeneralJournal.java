@@ -16,6 +16,7 @@ import java.util.UUID;
 @EqualsAndHashCode(callSuper = true)
 public class GeneralJournal extends AuditableEntity<UUID> {
     @Id
+    @GeneratedValue
     private UUID id;
     private LocalDate date;
     private String description;

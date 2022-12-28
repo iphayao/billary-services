@@ -11,12 +11,13 @@ import th.co.readypaper.billary.repo.entity.invoice.Invoice;
 import th.co.readypaper.billary.repo.repository.AccountChartRepository;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static th.co.readypaper.billary.accounting.constant.Constants.*;
+import static th.co.readypaper.billary.accounting.common.Constants.*;
+import static th.co.readypaper.billary.accounting.report.journal.GeneralJournalHelper.amountOf;
+import static th.co.readypaper.billary.accounting.report.journal.GeneralJournalHelper.descOf;
 
 @Slf4j
 @Component
@@ -28,14 +29,25 @@ public class GeneralJournalBuilder {
     }
 
     GeneralJournal build(Invoice invoice) {
-        return GeneralJournal.builder()
+        log.info("Invoice DocumentID: {}", invoice.getDocumentId());
+        GeneralJournal generalJournal = GeneralJournal.builder()
                 .reference(invoice.getId())
                 .documentId(invoice.getDocumentId())
+                .description(descOf(invoice))
                 .type("Invoice")
                 .date(invoice.getIssuedDate())
                 .debit(buildGeneralJournalDebit(invoice))
                 .credit(buildGeneralJournalCredit(invoice))
                 .build();
+
+        generalJournal.setDebit(generalJournal.getDebit().stream()
+                .peek(debit -> debit.setGeneralJournal(generalJournal))
+                .toList());
+        generalJournal.setCredit(generalJournal.getCredit().stream()
+                .peek(credit -> credit.setGeneralJournal(generalJournal))
+                .toList());
+
+        return generalJournal;
     }
 
     private List<GeneralJournalDebit> buildGeneralJournalDebit(Invoice invoice) {
@@ -71,13 +83,6 @@ public class GeneralJournalBuilder {
                     .build());
         }
         return credits;
-    }
-
-    private BigDecimal amountOf(BigDecimal amount) {
-        if (amount != null) {
-            return amount.setScale(2, RoundingMode.HALF_DOWN);
-        }
-        return BigDecimal.ZERO;
     }
 
     @Cacheable
