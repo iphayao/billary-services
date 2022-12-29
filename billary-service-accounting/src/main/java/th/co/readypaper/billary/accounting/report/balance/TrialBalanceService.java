@@ -43,7 +43,7 @@ public class TrialBalanceService {
 
     public List<AccountingYearlySummary> findTrialBalanceYearlySummary(Integer year) {
         log.info("Find trial balance yearly summary, year: {}", year);
-        List<AccountingYearlySummary> summaries = new ArrayList<>();
+        var summaries = new ArrayList<AccountingYearlySummary>();
 
         for (int i = 1; i <= 12; i++) {
             int month = i;
@@ -63,7 +63,7 @@ public class TrialBalanceService {
     @Transactional
     public List<TrialBalanceDto> createTrialBalance(Integer year, Integer month) {
         log.info("Create trial balance, year: {}, month: {}", year, month);
-        List<TrialBalance> trialBalances = new ArrayList<>();
+        var trialBalances = new ArrayList<TrialBalance>();
 
         if (month == null) {
             for (int i = 1; i <= 12; i++) {

@@ -47,8 +47,8 @@ public class GeneralJournalService {
                     .map(generalJournalMapper::toDto)
                     .toList();
         } else {
-            LocalDate firstDay = firstDayOf(year, month);
-            LocalDate lastDay = lastDayOf(year, month);
+            var firstDay = firstDayOf(year, month);
+            var lastDay = lastDayOf(year, month);
 
             return generalJournalRepository.findByDateBetween(firstDay, lastDay).stream()
                     .map(generalJournalMapper::toDto)
@@ -123,7 +123,7 @@ public class GeneralJournalService {
         LocalDate firstDayOfMonth = firstDayOf(year, month);
         LocalDate lastDayOfMonth = lastDayOf(year, month);
 
-        List<GeneralJournal> journals = generalJournalRepository.findByDateBetween(firstDayOfMonth, lastDayOfMonth,
+        var journals = generalJournalRepository.findByDateBetween(firstDayOfMonth, lastDayOfMonth,
                 Sort.by(Sort.Direction.ASC, "date", "documentId"));
 
         return generalJournalExporter.export(journals);

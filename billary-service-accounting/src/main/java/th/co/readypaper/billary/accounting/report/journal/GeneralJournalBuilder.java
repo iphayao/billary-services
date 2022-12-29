@@ -30,7 +30,7 @@ public class GeneralJournalBuilder {
 
     GeneralJournal build(Invoice invoice) {
         log.info("Invoice DocumentID: {}", invoice.getDocumentId());
-        GeneralJournal generalJournal = GeneralJournal.builder()
+        var generalJournal = GeneralJournal.builder()
                 .reference(invoice.getId())
                 .documentId(invoice.getDocumentId())
                 .description(descOf(invoice))
@@ -51,7 +51,7 @@ public class GeneralJournalBuilder {
     }
 
     private List<GeneralJournalDebit> buildGeneralJournalDebit(Invoice invoice) {
-        List<GeneralJournalDebit> debits = new ArrayList<>();
+        var debits = new ArrayList<GeneralJournalDebit>();
         debits.add(GeneralJournalDebit.builder() // ลูกหนี้การค้า
                 .code(accountChartCodeOf(INVOICE_DEBIT_CODE))
                 .desc(accountChartDescOf(INVOICE_DEBIT_CODE))
@@ -61,7 +61,7 @@ public class GeneralJournalBuilder {
     }
 
     private List<GeneralJournalCredit> buildGeneralJournalCredit(Invoice invoice) {
-        List<GeneralJournalCredit> credits = new ArrayList<>();
+        var credits = new ArrayList<GeneralJournalCredit>();
         if (invoice.getVatAmount() == null || invoice.getVatAmount().equals(BigDecimal.ZERO)) {
             // ไม่มี ภาษ๊มูลค่าเพิ่ม
             credits.add(GeneralJournalCredit.builder()

@@ -42,7 +42,7 @@ public class LedgerService {
 
     @Transactional
     public List<LedgerDto> createLedger(Integer year, Integer month) {
-        List<Ledger> ledgers = new ArrayList<>();
+        var ledgers = new ArrayList<Ledger>();
 
         if (month == null) {
             for (int i = 1; i <= 12; i++) {
@@ -58,7 +58,7 @@ public class LedgerService {
     }
 
     public List<AccountingYearlySummary> findLedgerYearlySummary(Integer year) {
-        List<AccountingYearlySummary> summaries = new ArrayList<>();
+        var summaries = new ArrayList<AccountingYearlySummary>();
 
         for (int i = 1; i <= 12; i++) {
             int month = i;

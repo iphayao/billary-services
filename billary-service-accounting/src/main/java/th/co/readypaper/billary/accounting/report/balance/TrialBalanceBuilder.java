@@ -26,7 +26,7 @@ public class TrialBalanceBuilder {
 
     public TrialBalance buildByYearAndMonth(Integer year, Integer month) {
         log.info("Build trial balance by year: {}, and month: {}", year, month);
-        TrialBalance trialBalance = new TrialBalance();
+        var trialBalance = new TrialBalance();
         trialBalance.setYear(year);
         trialBalance.setMonth(month);
         trialBalance.setEntries(new ArrayList<>());
