@@ -1,5 +1,7 @@
 package th.co.readypaper.billary.accounting.report.balance;
 
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import th.co.readypaper.billary.accounting.common.model.AccountingYearlySummary;
 import th.co.readypaper.billary.accounting.report.balance.model.TrialBalanceDto;
@@ -7,6 +9,8 @@ import th.co.readypaper.billary.common.model.ApiResponse;
 
 import java.util.List;
 import java.util.Optional;
+
+import static th.co.readypaper.billary.common.utils.HttpHeaderUtils.trialBalanceAttachmentFilename;
 
 @RestController
 @RequestMapping("/trial-balances")
@@ -38,6 +42,17 @@ public class TrialBalanceController {
         var trialBalance = trialBalanceService.createTrialBalance(year, month);
         return Optional.of(trialBalance)
                 .map(ApiResponse::success);
+    }
+
+    @PostMapping("/excel")
+    public ResponseEntity<byte[]> postTrialBalanceExport(@RequestParam Integer year, @RequestParam Integer month) {
+        return trialBalanceService.exportTrialBalance(year, month)
+                .map(data -> ResponseEntity.ok()
+                        .headers(trialBalanceAttachmentFilename(year, month))
+                        .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                        .body(data))
+                .orElseThrow();
+
     }
 
 }

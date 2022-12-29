@@ -8,7 +8,9 @@ import th.co.readypaper.billary.accounting.report.balance.model.TrialBalanceDto;
 import th.co.readypaper.billary.repo.entity.account.balance.TrialBalance;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static th.co.readypaper.billary.common.utils.DateUtils.getFullMonthOf;
 
@@ -18,13 +20,16 @@ public class TrialBalanceService {
     private final TrialBalanceRepository trialBalanceRepository;
     private final TrialBalanceMapper trialBalanceMapper;
     private final TrialBalanceBuilder trialBalanceBuilder;
+    private final TrialBalanceExporter trialBalanceExporter;
 
     public TrialBalanceService(TrialBalanceRepository trialBalanceRepository,
                                TrialBalanceMapper trialBalanceMapper,
-                               TrialBalanceBuilder trialBalanceBuilder) {
+                               TrialBalanceBuilder trialBalanceBuilder,
+                               TrialBalanceExporter trialBalanceExporter) {
         this.trialBalanceRepository = trialBalanceRepository;
         this.trialBalanceMapper = trialBalanceMapper;
         this.trialBalanceBuilder = trialBalanceBuilder;
+        this.trialBalanceExporter = trialBalanceExporter;
     }
 
     public List<TrialBalanceDto> findAllTrialBalances(Integer year, Integer month) {
@@ -34,7 +39,8 @@ public class TrialBalanceService {
         } else if (year != null && month == null) {
             trialBalances = trialBalanceRepository.findByYear(year);
         } else {
-            trialBalances = trialBalanceRepository.findByYearAndMonth(year, month);
+            var trialBalance = trialBalanceRepository.findByYearAndMonth(year, month);
+            trialBalances = Collections.singletonList(trialBalance);
         }
         return trialBalances.stream()
                 .map(trialBalanceMapper::toDto)
@@ -78,4 +84,11 @@ public class TrialBalanceService {
                 .toList();
     }
 
+    public Optional<byte[]> exportTrialBalance(Integer year, Integer month) {
+        log.info("Export trial balance, Year: {}, Month: {}", year, month);
+
+        var trialBalances = trialBalanceRepository.findByYearAndMonth(year, month);
+
+        return trialBalanceExporter.export(trialBalances);
+    }
 }

@@ -8,7 +8,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface TrialBalanceRepository extends JpaRepository<TrialBalance, UUID> {
-    List<TrialBalance> findByYearAndMonth(Integer year, Integer month);
+    TrialBalance findByYearAndMonth(Integer year, Integer month);
 
     List<TrialBalance> findByYear(Integer year);
 
