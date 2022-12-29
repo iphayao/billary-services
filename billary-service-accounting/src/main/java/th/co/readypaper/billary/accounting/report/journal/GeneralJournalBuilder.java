@@ -74,12 +74,12 @@ public class GeneralJournalBuilder {
             credits.add(GeneralJournalCredit.builder()
                     .code(accountChartCodeOf(INVOICE_VAT_SELL_CODE))
                     .desc(accountChartDescOf(INVOICE_VAT_SELL_CODE))
-                    .amount(amountOf(invoice.getTotal()))
+                    .amount(amountOf(invoice.getVatableAmount()))
                     .build());
             credits.add(GeneralJournalCredit.builder()
                     .code(accountChartCodeOf(INVOICE_CREDIT_VAT_CODE))
                     .desc(accountChartDescOf(INVOICE_CREDIT_VAT_CODE))
-                    .amount(amountOf(invoice.getTotal()))
+                    .amount(amountOf(invoice.getVatAmount()))
                     .build());
         }
         return credits;
@@ -87,7 +87,7 @@ public class GeneralJournalBuilder {
 
     @Cacheable
     private Optional<AccountChart> getAccountChartByCode(String code) {
-        return accountChartRepository.findByCode(INVOICE_DEBIT_CODE);
+        return accountChartRepository.findByCode(code);
     }
 
     private String accountChartCodeOf(String code) {

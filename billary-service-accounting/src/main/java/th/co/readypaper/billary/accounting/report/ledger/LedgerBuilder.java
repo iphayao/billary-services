@@ -166,8 +166,8 @@ public class LedgerBuilder {
                             ledger.setMonth(month);
                             ledger.setCode(code);
                             ledger.setDesc(generalJournalCredit.getDesc());
+                            ledger.setDebits(new ArrayList<>());
                             ledger.setCredits(credits);
-                            ledger.setCredits(new ArrayList<>());
                             ledger.setSumDebit(sumOfDebit(ledger.getDebits()));
                             ledger.setSumCredit(sumOfCredit(ledger.getCredits()));
                         }

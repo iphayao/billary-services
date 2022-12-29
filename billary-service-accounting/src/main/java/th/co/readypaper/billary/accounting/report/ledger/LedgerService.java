@@ -64,15 +64,11 @@ public class LedgerService {
                 .toList();
     }
 
-    public List<AccountingYearlySummary> getLedgerYearlySummary(Integer year) {
+    public List<AccountingYearlySummary> findLedgerYearlySummary(Integer year) {
         List<AccountingYearlySummary> summaries = new ArrayList<>();
 
         for (int i = 1; i <= 12; i++) {
             int month = i;
-
-            var firstDay = firstDayOf(year, month);
-            var lastDay = lastDayOf(year, month);
-
             var summary = ledgerRepository.countByYearAndMonth(year, month)
                     .map(count -> AccountingYearlySummary.builder()
                             .index(month)

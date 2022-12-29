@@ -27,7 +27,7 @@ public class LedgerController {
 
     @GetMapping("/summary")
     public Optional<ApiResponse<List<AccountingYearlySummary>>> getLegerSummary(@RequestParam Integer year) {
-        var legerYearlySummary = ledgerService.getLedgerYearlySummary(year);
+        var legerYearlySummary = ledgerService.findLedgerYearlySummary(year);
         return Optional.of(legerYearlySummary)
                 .map(ApiResponse::success);
     }
