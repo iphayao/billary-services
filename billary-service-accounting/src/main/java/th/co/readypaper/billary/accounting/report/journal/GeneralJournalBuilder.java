@@ -36,14 +36,14 @@ public class GeneralJournalBuilder {
                 .description(descOf(invoice))
                 .type("Invoice")
                 .date(invoice.getIssuedDate())
-                .debit(buildGeneralJournalDebit(invoice))
-                .credit(buildGeneralJournalCredit(invoice))
+                .debits(buildGeneralJournalDebit(invoice))
+                .credits(buildGeneralJournalCredit(invoice))
                 .build();
 
-        generalJournal.setDebit(generalJournal.getDebit().stream()
+        generalJournal.setDebits(generalJournal.getDebits().stream()
                 .peek(debit -> debit.setGeneralJournal(generalJournal))
                 .toList());
-        generalJournal.setCredit(generalJournal.getCredit().stream()
+        generalJournal.setCredits(generalJournal.getCredits().stream()
                 .peek(credit -> credit.setGeneralJournal(generalJournal))
                 .toList());
 

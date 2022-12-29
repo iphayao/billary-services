@@ -26,10 +26,10 @@ public class GeneralJournal extends AuditableEntity<UUID> {
     @OneToMany(mappedBy = "generalJournal",
             fetch = FetchType.LAZY,
             cascade = CascadeType.ALL)
-    private List<GeneralJournalDebit> debit;
+    private List<GeneralJournalDebit> debits;
     @OneToMany(mappedBy = "generalJournal",
             fetch = FetchType.LAZY,
             cascade = CascadeType.ALL)
-    private List<GeneralJournalCredit> credit;
+    private List<GeneralJournalCredit> credits;
 
 }

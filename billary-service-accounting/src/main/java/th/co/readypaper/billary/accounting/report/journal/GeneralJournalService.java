@@ -5,12 +5,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import th.co.readypaper.billary.accounting.common.model.AccountingYearlySummary;
 import th.co.readypaper.billary.accounting.report.journal.model.GeneralJournalDto;
-import th.co.readypaper.billary.repo.entity.account.journal.GeneralJournal;
 import th.co.readypaper.billary.repo.repository.InvoiceRepository;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import static th.co.readypaper.billary.common.utils.DateUtils.*;
@@ -93,7 +91,7 @@ public class GeneralJournalService {
     public List<AccountingYearlySummary> findGeneralJournalYearlySummary(Integer year) {
         List<AccountingYearlySummary> summaries = new ArrayList<>();
 
-        for (int i = 1; i < 12; i++) {
+        for (int i = 1; i <= 12; i++) {
             int month = i;
 
             var firstDay = firstDayOf(year, month);
