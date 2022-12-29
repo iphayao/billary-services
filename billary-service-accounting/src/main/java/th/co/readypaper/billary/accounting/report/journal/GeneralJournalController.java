@@ -1,12 +1,18 @@
 package th.co.readypaper.billary.accounting.report.journal;
 
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import th.co.readypaper.billary.accounting.common.model.AccountingYearlySummary;
 import th.co.readypaper.billary.accounting.report.journal.model.GeneralJournalDto;
 import th.co.readypaper.billary.common.model.ApiResponse;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+
+import static th.co.readypaper.billary.common.utils.HttpHeaderUtils.journalAttachmentFilename;
 
 @RestController
 @RequestMapping("/general-journals")
@@ -39,6 +45,18 @@ public class GeneralJournalController {
         var generalJournals = generalJournalService.createGeneralJournal(year, month, day);
         return Optional.of(generalJournals)
                 .map(ApiResponse::success);
+    }
+
+    @PostMapping("/excel")
+    public ResponseEntity<byte[]> postGeneralJournalExport(@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy/MM/dd") LocalDate date,
+                                                           @RequestParam(required = false) int year, int month) {
+        return generalJournalService.exportGeneralJournal(year, month)
+                .map(data -> ResponseEntity.ok()
+                        .headers(journalAttachmentFilename(year, month))
+                        .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                        .body(data))
+                .orElseThrow();
+
     }
 
 }

@@ -1,15 +1,18 @@
 package th.co.readypaper.billary.accounting.report.journal;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import th.co.readypaper.billary.accounting.common.model.AccountingYearlySummary;
 import th.co.readypaper.billary.accounting.report.journal.model.GeneralJournalDto;
+import th.co.readypaper.billary.repo.entity.account.journal.GeneralJournal;
 import th.co.readypaper.billary.repo.repository.InvoiceRepository;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static th.co.readypaper.billary.common.utils.DateUtils.*;
 
@@ -19,16 +22,19 @@ public class GeneralJournalService {
     private final GeneralJournalRepository generalJournalRepository;
     private final GeneralJournalMapper generalJournalMapper;
     private final GeneralJournalBuilder generalJournalBuilder;
+    private final GeneralJournalExporter generalJournalExporter;
 
     private final InvoiceRepository invoiceRepository;
 
     public GeneralJournalService(GeneralJournalRepository generalJournalRepository,
                                  GeneralJournalMapper generalJournalMapper,
                                  GeneralJournalBuilder generalJournalBuilder,
+                                 GeneralJournalExporter generalJournalExporter,
                                  InvoiceRepository invoiceRepository) {
         this.generalJournalRepository = generalJournalRepository;
         this.generalJournalMapper = generalJournalMapper;
         this.generalJournalBuilder = generalJournalBuilder;
+        this.generalJournalExporter = generalJournalExporter;
         this.invoiceRepository = invoiceRepository;
     }
 
@@ -109,5 +115,17 @@ public class GeneralJournalService {
         }
 
         return summaries;
+    }
+
+    public Optional<byte[]> exportGeneralJournal(int year, int month) {
+        log.info("Export general journal, Year: {}, Month: {}", year, month);
+
+        LocalDate firstDayOfMonth = firstDayOf(year, month);
+        LocalDate lastDayOfMonth = lastDayOf(year, month);
+
+        List<GeneralJournal> journals = generalJournalRepository.findByDateBetween(firstDayOfMonth, lastDayOfMonth,
+                Sort.by(Sort.Direction.ASC, "date", "documentId"));
+
+        return generalJournalExporter.export(journals);
     }
 }

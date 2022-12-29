@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 public class HttpHeaderUtils {
 
     private static List<String> months = Arrays.asList("", "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม");
@@ -29,7 +31,7 @@ public class HttpHeaderUtils {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentDisposition(ContentDisposition
                 .attachment()
-                .filename(URLEncoder.encode(fileName, StandardCharsets.UTF_8))
+                .filename(URLEncoder.encode(fileName, UTF_8))
                 .build());
 
         return headers;
@@ -58,10 +60,11 @@ public class HttpHeaderUtils {
     }
 
     public static HttpHeaders attachmentFilename(int year, int month, String prefix) {
+        String fileName = prefix + "-" + getYear(year) + "-" + getMonth(month) + ".xlsx";
         HttpHeaders headers = new HttpHeaders();
         headers.setContentDisposition(ContentDisposition
                 .attachment()
-                .filename(prefix + "-" + getYear(year) + "-" + getMonth(month) + ".xlsx", StandardCharsets.UTF_8)
+                .filename(URLEncoder.encode(fileName, StandardCharsets.UTF_8))
                 .build());
         return headers;
     }
