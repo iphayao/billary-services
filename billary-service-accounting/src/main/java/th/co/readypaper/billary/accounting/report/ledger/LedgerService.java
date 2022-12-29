@@ -8,8 +8,10 @@ import th.co.readypaper.billary.accounting.common.model.AccountingYearlySummary;
 import th.co.readypaper.billary.accounting.report.ledger.model.LedgerDto;
 import th.co.readypaper.billary.repo.entity.account.ledger.Ledger;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static th.co.readypaper.billary.common.utils.DateUtils.*;
 
@@ -19,13 +21,16 @@ public class LedgerService {
     private final LedgerRepository ledgerRepository;
     private final LedgerMapper ledgerMapper;
     private final LedgerBuilder ledgerBuilder;
+    private final LedgerExporter ledgerExporter;
 
     public LedgerService(LedgerRepository ledgerRepository,
                          LedgerMapper ledgerMapper,
-                         LedgerBuilder ledgerBuilder) {
+                         LedgerBuilder ledgerBuilder,
+                         LedgerExporter ledgerExporter) {
         this.ledgerRepository = ledgerRepository;
         this.ledgerMapper = ledgerMapper;
         this.ledgerBuilder = ledgerBuilder;
+        this.ledgerExporter = ledgerExporter;
     }
 
     public List<LedgerDto> findAllLedgers(Integer year, Integer month) {
@@ -75,4 +80,15 @@ public class LedgerService {
         return summaries;
     }
 
+    public Optional<byte[]> exportLedger(Integer year, Integer month) {
+        log.info("Export ledger, Year: {}, Month: {}", year, month);
+
+        LocalDate firstDayOfMonth = firstDayOf(year, month);
+        LocalDate lastDayOfMonth = lastDayOf(year, month);
+
+        var ledgers = ledgerRepository.findByYearAndMonth(year, month,
+                Sort.by(Sort.Direction.ASC, "code"));
+
+        return ledgerExporter.export(ledgers);
+    }
 }
