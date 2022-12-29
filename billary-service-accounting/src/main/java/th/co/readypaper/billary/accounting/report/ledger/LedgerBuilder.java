@@ -1,8 +1,9 @@
 package th.co.readypaper.billary.accounting.report.ledger;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.parameters.P;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
+import th.co.readypaper.billary.accounting.report.journal.GeneralJournalRepository;
 import th.co.readypaper.billary.repo.entity.account.journal.GeneralJournal;
 import th.co.readypaper.billary.repo.entity.account.journal.GeneralJournalCredit;
 import th.co.readypaper.billary.repo.entity.account.journal.GeneralJournalDebit;
@@ -12,23 +13,72 @@ import th.co.readypaper.billary.repo.entity.account.ledger.LedgerDebit;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import static th.co.readypaper.billary.accounting.common.Constants.EXPENSE_VAT_BUY_CODE;
 import static th.co.readypaper.billary.accounting.common.Constants.WITHHOLDING_TAX_CODE;
+import static th.co.readypaper.billary.common.utils.DateUtils.firstDayOf;
+import static th.co.readypaper.billary.common.utils.DateUtils.lastDayOf;
 
 @Slf4j
 @Component
 public class LedgerBuilder {
-    public void build(Integer year, Integer month, Map<String, Ledger> ledgers, GeneralJournal generalJournal) {
+    private final LedgerRepository ledgerRepository;
+    private final GeneralJournalRepository generalJournalRepository;
+
+    public LedgerBuilder(LedgerRepository ledgerRepository,
+                         GeneralJournalRepository generalJournalRepository) {
+        this.ledgerRepository = ledgerRepository;
+        this.generalJournalRepository = generalJournalRepository;
+    }
+
+    public List<Ledger> buildByYearAndMonth(Integer year, Integer month) {
+        log.info("Year: {}", year);
+        log.info("Month: {}", month);
+
+        LocalDate firstDayOfMonth = firstDayOf(year, month);
+        LocalDate lastDayOfMonth = lastDayOf(year, month);
+
+        log.info("First day of month: {}", firstDayOfMonth);
+        log.info("Last day of month: {}", lastDayOfMonth);
+
+        LocalDate previousMonth = firstDayOfMonth.minusMonths(1);
+
+        int broughtForwardYear;
+        int broughtForwardMonth;
+
+        if (month == 1) {
+            broughtForwardYear = year;
+            broughtForwardMonth = 0;
+        } else {
+            broughtForwardYear = previousMonth.getYear();
+            broughtForwardMonth = previousMonth.getMonthValue();
+        }
+
+        ledgerRepository.deleteByYearAndMonth(year, month)
+                .ifPresent(count -> log.info("Count: {}", count));
+
+        Map<String, Ledger> ledgers = new HashMap<>();
+
+        generalJournalRepository.findByDateBetween(firstDayOfMonth, lastDayOfMonth, Sort.by(Sort.Direction.ASC, "date"))
+                .forEach(generalJournal -> createLedgers(ledgers, generalJournal));
+
+        return ledgers.values().stream()
+                .map(ledgerRepository::save)
+                .toList();
+    }
+
+    public void createLedgers(Map<String, Ledger> ledgers, GeneralJournal generalJournal) {
         log.info("{}", generalJournal.getDocumentId());
         // สร้างบัญชีแยกประเภท เดบิต
         generalJournal.getDebits()
                 .forEach(generalJournalDebit -> {
-                    String code = generalJournalDebit.getCode();
+                    String accountCode = generalJournalDebit.getCode();
 
                     List<LedgerDebit> debits = new ArrayList<>();
 
@@ -61,18 +111,18 @@ public class LedgerBuilder {
                     }
 
                     Ledger ledger;
-                    if (ledgers.containsKey(code)) {
+                    if (ledgers.containsKey(accountCode)) {
                         // เพิ่มไปในบัญชีแยกประเภทที่มีอยู่
-                        ledger = ledgers.get(code);
+                        ledger = ledgers.get(accountCode);
                         ledger.getDebits().addAll(debits);
-                        ledger.setSumDebit(sumOfDebit(ledgers.get(code).getDebits()));
-                        ledger.setDiffSumDebitCredit(diffSumDebitCreditOf(ledgers.get(code)));
+                        ledger.setSumDebit(sumOfDebit(ledgers.get(accountCode).getDebits()));
+                        ledger.setDiffSumDebitCredit(diffSumDebitCreditOf(ledgers.get(accountCode)));
                     } else {
                         // สร้างบัญชีแยกประเภทใหม่
                         ledger = new Ledger();
-                        ledger.setYear(year);
-                        ledger.setMonth(month);
-                        ledger.setCode(code);
+                        ledger.setYear(generalJournal.getDate().getYear());
+                        ledger.setMonth(generalJournal.getDate().getMonthValue());
+                        ledger.setCode(accountCode);
                         ledger.setDesc(generalJournalDebit.getDesc());
                         ledger.setDebits(debits);
                         ledger.setCredits(new ArrayList<>());
@@ -91,17 +141,17 @@ public class LedgerBuilder {
                                 return ledgerCredit;
                             }).collect(Collectors.toList()));
 
-                    ledgers.put(code, ledger);
+                    ledgers.put(accountCode, ledger);
                 });
 
         // สร้างบัญชีแยกประเภท เครดิต
         generalJournal.getCredits()
                 .forEach(generalJournalCredit -> {
-                    String code = generalJournalCredit.getCode();
+                    String accountCode = generalJournalCredit.getCode();
 
                     List<LedgerCredit> credits = new ArrayList<>();
 
-                    if (isWithHoldingTax(code)) {
+                    if (isWithHoldingTax(accountCode)) {
                         if (generalJournal.getDebits().size() > 2) {
                             generalJournal.getDebits()
                                     .forEach(generalJournalDebit -> {
@@ -153,18 +203,18 @@ public class LedgerBuilder {
                         }
 
                         Ledger ledger;
-                        if (ledgers.containsKey(code)) {
+                        if (ledgers.containsKey(accountCode)) {
                             // เพิ่มไปในบัญชีแยกประเภทที่มีอยู่
-                            ledger = ledgers.get(code);
+                            ledger = ledgers.get(accountCode);
                             ledger.getCredits().addAll(credits);
-                            ledger.setSumDebit(sumOfDebit(ledgers.get(code).getDebits()));
-                            ledger.setDiffSumDebitCredit(diffSumDebitCreditOf(ledgers.get(code)));
+                            ledger.setSumDebit(sumOfDebit(ledgers.get(accountCode).getDebits()));
+                            ledger.setDiffSumDebitCredit(diffSumDebitCreditOf(ledgers.get(accountCode)));
                         } else {
                             // สร้างบัญชีแยกประเภทใหม่
                             ledger = new Ledger();
-                            ledger.setYear(year);
-                            ledger.setMonth(month);
-                            ledger.setCode(code);
+                            ledger.setYear(generalJournal.getDate().getYear());
+                            ledger.setMonth(generalJournal.getDate().getMonthValue());
+                            ledger.setCode(accountCode);
                             ledger.setDesc(generalJournalCredit.getDesc());
                             ledger.setDebits(new ArrayList<>());
                             ledger.setCredits(credits);
@@ -183,7 +233,7 @@ public class LedgerBuilder {
                                     return ledgerCredit;
                                 }).collect(Collectors.toList()));
 
-                        ledgers.put(code, ledger);
+                        ledgers.put(accountCode, ledger);
                     }
                 });
     }
