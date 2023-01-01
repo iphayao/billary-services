@@ -28,7 +28,7 @@ public class TrialBalanceExporter {
     public static final short ROW_HEIGHT = 30 * ROW_HEIGHT_FACTOR;
     public static final String FONT_TH_SARABUN_NEW = "TH Sarabun New";
 
-    private final List<Integer> columnWidth = Arrays.asList(40, 7, 14, 6, 12, 6);
+    private final List<Integer> columnWidth = Arrays.asList(40, 10, 14, 6, 12, 6);
 
     private CellStyleHelper cellStyleHelper;
 

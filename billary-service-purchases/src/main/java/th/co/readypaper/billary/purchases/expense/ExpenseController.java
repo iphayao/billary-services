@@ -7,6 +7,7 @@ import th.co.readypaper.billary.common.model.ApiResponse;
 import th.co.readypaper.billary.common.model.DocumentId;
 import th.co.readypaper.billary.common.model.ResultPage;
 import th.co.readypaper.billary.common.model.dto.expense.ExpenseDto;
+import th.co.readypaper.billary.common.model.dto.expense.ExpensePaymentTypeDto;
 import th.co.readypaper.billary.common.model.dto.expense.ExpenseVatTypeDto;
 import th.co.readypaper.billary.common.model.dto.expense.WithholdingTaxPercentDto;
 
@@ -23,7 +24,6 @@ public class ExpenseController {
     private final ExpenseService expenseService;
 
     public ExpenseController(ExpenseService expenseService) {
-        log.info("Hello");
         this.expenseService = expenseService;
     }
 
@@ -67,9 +67,16 @@ public class ExpenseController {
     }
 
     @PostMapping("/reorder")
-    public Optional<ApiResponse<List<ExpenseDto>>>  reOrderDocumentId(@RequestParam Integer year,
-                                                                      @RequestParam Integer month) {
+    public Optional<ApiResponse<List<ExpenseDto>>> reOrderDocumentId(@RequestParam Integer year,
+                                                                     @RequestParam Integer month) {
         List<ExpenseDto> expenses = expenseService.reOrderDocumentIdByDate(year, month);
+        return Optional.of(expenses)
+                .map(ApiResponse::success);
+    }
+
+    @GetMapping("/accounting")
+    public Optional<ApiResponse<List<ExpenseDto>>> getExpenseNoAccountingCode() {
+        List<ExpenseDto> expenses = expenseService.findExpenseNoAccountingCode();
         return Optional.of(expenses)
                 .map(ApiResponse::success);
     }
@@ -85,6 +92,13 @@ public class ExpenseController {
     public Optional<ApiResponse<List<WithholdingTaxPercentDto>>> getWithholdingTaxPercent() {
         List<WithholdingTaxPercentDto> withholdingTaxPercents = expenseService.findAllWithholdingTaxPercent();
         return Optional.of(withholdingTaxPercents)
+                .map(ApiResponse::success);
+    }
+
+    @GetMapping("/payment-types")
+    public Optional<ApiResponse<List<ExpensePaymentTypeDto>>> getExpensePaymentTypes() {
+        var expensePaymentTypes = expenseService.findExpensePaymentTypes();
+        return Optional.of(expensePaymentTypes)
                 .map(ApiResponse::success);
     }
 

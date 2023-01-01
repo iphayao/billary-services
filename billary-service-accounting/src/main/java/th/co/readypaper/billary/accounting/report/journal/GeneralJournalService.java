@@ -5,9 +5,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import th.co.readypaper.billary.accounting.common.model.AccountingYearlySummary;
+import th.co.readypaper.billary.accounting.report.journal.builder.GeneralJournalExpenseBuilder;
+import th.co.readypaper.billary.accounting.report.journal.builder.GeneralJournalInvoiceBuilder;
 import th.co.readypaper.billary.accounting.report.journal.model.GeneralJournalDto;
 import th.co.readypaper.billary.repo.entity.account.journal.GeneralJournal;
-import th.co.readypaper.billary.repo.repository.InvoiceRepository;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -21,21 +22,20 @@ import static th.co.readypaper.billary.common.utils.DateUtils.*;
 public class GeneralJournalService {
     private final GeneralJournalRepository generalJournalRepository;
     private final GeneralJournalMapper generalJournalMapper;
-    private final GeneralJournalBuilder generalJournalBuilder;
+    private final GeneralJournalInvoiceBuilder generalJournalInvoiceBuilder;
+    private final GeneralJournalExpenseBuilder generalJournalExpenseBuilder;
     private final GeneralJournalExporter generalJournalExporter;
-
-    private final InvoiceRepository invoiceRepository;
 
     public GeneralJournalService(GeneralJournalRepository generalJournalRepository,
                                  GeneralJournalMapper generalJournalMapper,
-                                 GeneralJournalBuilder generalJournalBuilder,
-                                 GeneralJournalExporter generalJournalExporter,
-                                 InvoiceRepository invoiceRepository) {
+                                 GeneralJournalInvoiceBuilder generalJournalInvoiceBuilder,
+                                 GeneralJournalExpenseBuilder generalJournalExpenseBuilder,
+                                 GeneralJournalExporter generalJournalExporter) {
         this.generalJournalRepository = generalJournalRepository;
         this.generalJournalMapper = generalJournalMapper;
-        this.generalJournalBuilder = generalJournalBuilder;
+        this.generalJournalInvoiceBuilder = generalJournalInvoiceBuilder;
+        this.generalJournalExpenseBuilder = generalJournalExpenseBuilder;
         this.generalJournalExporter = generalJournalExporter;
-        this.invoiceRepository = invoiceRepository;
     }
 
     public List<GeneralJournalDto> findAllGeneralJournal(Integer year, Integer month) {
@@ -83,13 +83,13 @@ public class GeneralJournalService {
         generalJournalRepository.deleteByDateBetween(firstDay, lastDay)
                 .ifPresent(deleted -> log.info("Deleted: {}", deleted));
 
-        var generalJournals = invoiceRepository.findByIssuedDateBetween(firstDay, lastDay)
-                .stream()
-                .map(generalJournalBuilder::build)
-                .map(generalJournalRepository::save)
-                .toList();
 
-        return generalJournals.stream()
+        var generalJournals = new ArrayList<GeneralJournal>();
+
+        generalJournals.addAll(generalJournalInvoiceBuilder.build(firstDay, lastDay));
+        generalJournals.addAll(generalJournalExpenseBuilder.build(firstDay, lastDay));
+
+        return generalJournalRepository.saveAll(generalJournals).stream()
                 .map(generalJournalMapper::toDto)
                 .toList();
     }

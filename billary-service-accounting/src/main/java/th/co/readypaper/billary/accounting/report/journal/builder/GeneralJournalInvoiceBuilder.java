@@ -1,4 +1,4 @@
-package th.co.readypaper.billary.accounting.report.journal;
+package th.co.readypaper.billary.accounting.report.journal.builder;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
@@ -9,26 +9,39 @@ import th.co.readypaper.billary.repo.entity.account.journal.GeneralJournalCredit
 import th.co.readypaper.billary.repo.entity.account.journal.GeneralJournalDebit;
 import th.co.readypaper.billary.repo.entity.invoice.Invoice;
 import th.co.readypaper.billary.repo.repository.AccountChartRepository;
+import th.co.readypaper.billary.repo.repository.InvoiceRepository;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import static th.co.readypaper.billary.accounting.common.Constants.*;
+import static th.co.readypaper.billary.accounting.common.Constants.INVOICE_CREDIT_VAT_CODE;
 import static th.co.readypaper.billary.accounting.report.journal.GeneralJournalHelper.amountOf;
 import static th.co.readypaper.billary.accounting.report.journal.GeneralJournalHelper.descOf;
 
 @Slf4j
 @Component
-public class GeneralJournalBuilder {
+public class GeneralJournalInvoiceBuilder {
     private final AccountChartRepository accountChartRepository;
+    private final InvoiceRepository invoiceRepository;
 
-    public GeneralJournalBuilder(AccountChartRepository accountChartRepository) {
+    public GeneralJournalInvoiceBuilder(AccountChartRepository accountChartRepository,
+                                        InvoiceRepository invoiceRepository) {
         this.accountChartRepository = accountChartRepository;
+        this.invoiceRepository = invoiceRepository;
     }
 
-    GeneralJournal build(Invoice invoice) {
+    public List<GeneralJournal> build(LocalDate startDate, LocalDate endDate) {
+        return invoiceRepository.findByIssuedDateBetween(startDate, endDate)
+                .stream()
+                .map(this::buildGeneralJournal)
+                .toList();
+    }
+
+    GeneralJournal buildGeneralJournal(Invoice invoice) {
         log.info("Invoice DocumentID: {}", invoice.getDocumentId());
         var generalJournal = GeneralJournal.builder()
                 .reference(invoice.getId())
@@ -101,5 +114,4 @@ public class GeneralJournalBuilder {
                 .map(AccountChart::getName)
                 .orElse("");
     }
-
 }

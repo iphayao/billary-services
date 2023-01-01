@@ -10,6 +10,7 @@ import java.util.UUID;
 
 public interface LedgerRepository extends JpaRepository<Ledger, UUID> {
     List<Ledger> findByYearAndMonth(Integer year, Integer month, Sort code);
+    List<Ledger> findByYearAndMonth(Integer year, Integer month);
 
     Optional<Long> deleteByYearAndMonth(Integer year, Integer month);
 

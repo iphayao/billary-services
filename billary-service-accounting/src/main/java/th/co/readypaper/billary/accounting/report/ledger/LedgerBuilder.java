@@ -14,10 +14,7 @@ import th.co.readypaper.billary.repo.entity.account.ledger.LedgerDebit;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static th.co.readypaper.billary.accounting.common.Constants.EXPENSE_VAT_BUY_CODE;
@@ -28,6 +25,7 @@ import static th.co.readypaper.billary.common.utils.DateUtils.lastDayOf;
 @Slf4j
 @Component
 public class LedgerBuilder {
+    public static final String BROUGHT_FORWARD_DESC = "ยอดยกมา";
     private final LedgerRepository ledgerRepository;
     private final GeneralJournalRepository generalJournalRepository;
 
@@ -63,7 +61,10 @@ public class LedgerBuilder {
         ledgerRepository.deleteByYearAndMonth(year, month)
                 .ifPresent(count -> log.info("Count: {}", count));
 
-        Map<String, Ledger> ledgers = new HashMap<>();
+        final Map<String, Ledger> ledgers;
+
+        List<Ledger> broughtForwardLedgers = ledgerRepository.findByYearAndMonth(broughtForwardYear, broughtForwardMonth);
+        ledgers = buildBroughtForward(broughtForwardLedgers, firstDayOfMonth); // ยอดยกมา
 
         generalJournalRepository.findByDateBetween(firstDayOfMonth, lastDayOfMonth, Sort.by(Sort.Direction.ASC, "date"))
                 .forEach(generalJournal -> createLedgers(ledgers, generalJournal));
@@ -71,6 +72,33 @@ public class LedgerBuilder {
         return ledgers.values().stream()
                 .map(ledgerRepository::save)
                 .toList();
+    }
+
+    private Map<String, Ledger> buildBroughtForward(List<Ledger> previousLedgers, LocalDate firstDayOfMonth) {
+        var ledgers = new TreeMap<String, Ledger>();
+        previousLedgers.forEach(ledger -> {
+            var broughtForwardLedger = Ledger.builder()
+                    .code(ledger.getCode())
+                    .desc(ledger.getDesc())
+                    .year(firstDayOfMonth.getYear())
+                    .month(firstDayOfMonth.getMonthValue())
+                    .debits(buildBroughtForwardDebit(firstDayOfMonth, ledger))
+                    .credits(buildBroughtForwardCredit(firstDayOfMonth, ledger))
+                    .sumDebit(sumOfDebit(ledger.getDebits()))
+                    .sumCredit(sumOfCredit(ledger.getCredits()))
+                    .diffSumDebitCredit(diffSumDebitCreditOf(ledger))
+                    .build();
+
+            broughtForwardLedger.setDebits(broughtForwardLedger.getDebits().stream()
+                    .peek(ledgerDebit -> ledgerDebit.setLedger(broughtForwardLedger))
+                    .collect(Collectors.toList()));
+            broughtForwardLedger.setCredits(broughtForwardLedger.getCredits().stream()
+                    .peek(ledgerCredit -> ledgerCredit.setLedger(broughtForwardLedger))
+                    .collect(Collectors.toList()));
+
+            ledgers.put(ledger.getCode(), broughtForwardLedger);
+        });
+        return ledgers;
     }
 
     public void createLedgers(Map<String, Ledger> ledgers, GeneralJournal generalJournal) {
@@ -115,8 +143,6 @@ public class LedgerBuilder {
                         // เพิ่มไปในบัญชีแยกประเภทที่มีอยู่
                         ledger = ledgers.get(accountCode);
                         ledger.getDebits().addAll(debits);
-                        ledger.setSumDebit(sumOfDebit(ledgers.get(accountCode).getDebits()));
-                        ledger.setDiffSumDebitCredit(diffSumDebitCreditOf(ledgers.get(accountCode)));
                     } else {
                         // สร้างบัญชีแยกประเภทใหม่
                         ledger = new Ledger();
@@ -126,20 +152,18 @@ public class LedgerBuilder {
                         ledger.setDesc(generalJournalDebit.getDesc());
                         ledger.setDebits(debits);
                         ledger.setCredits(new ArrayList<>());
-                        ledger.setSumDebit(sumOfDebit(ledger.getDebits()));
-                        ledger.setSumCredit(sumOfCredit(ledger.getCredits()));
                     }
 
+                    ledger.setSumDebit(sumOfDebit(ledger.getDebits()));
+                    ledger.setSumCredit(sumOfCredit(ledger.getCredits()));
+                    ledger.setDiffSumDebitCredit(diffSumDebitCreditOf(ledger));
+
                     ledger.setDebits(ledger.getDebits().stream()
-                            .map(ledgerDebit -> {
-                                ledgerDebit.setLedger(ledger);
-                                return ledgerDebit;
-                            }).collect(Collectors.toList()));
+                            .peek(ledgerDebit -> ledgerDebit.setLedger(ledger))
+                            .collect(Collectors.toList()));
                     ledger.setCredits(ledger.getCredits().stream()
-                            .map(ledgerCredit -> {
-                                ledgerCredit.setLedger(ledger);
-                                return ledgerCredit;
-                            }).collect(Collectors.toList()));
+                            .peek(ledgerCredit -> ledgerCredit.setLedger(ledger))
+                            .collect(Collectors.toList()));
 
                     ledgers.put(accountCode, ledger);
                 });
@@ -177,7 +201,7 @@ public class LedgerBuilder {
                         if (generalJournal.getDebits().size() < 2) {
                             generalJournal.getDebits()
                                     .forEach(generalJournalDebit -> {
-                                        if (!isCreditContainWithHoldingTax(generalJournal)
+                                        if (isCreditContainWithHoldingTax(generalJournal)
                                                 && !isExpenseWithVat(generalJournalDebit.getCode())) {
                                             // รายการค่าใช้จ่ายที่ต้องหัก ภาษีหัก ณ ที่จ่ายออก
                                             credits.add(buildLedgerCredit(generalJournal, generalJournalDebit, generalJournalDebit.getAmount()));
@@ -207,8 +231,6 @@ public class LedgerBuilder {
                             // เพิ่มไปในบัญชีแยกประเภทที่มีอยู่
                             ledger = ledgers.get(accountCode);
                             ledger.getCredits().addAll(credits);
-                            ledger.setSumDebit(sumOfDebit(ledgers.get(accountCode).getDebits()));
-                            ledger.setDiffSumDebitCredit(diffSumDebitCreditOf(ledgers.get(accountCode)));
                         } else {
                             // สร้างบัญชีแยกประเภทใหม่
                             ledger = new Ledger();
@@ -218,24 +240,50 @@ public class LedgerBuilder {
                             ledger.setDesc(generalJournalCredit.getDesc());
                             ledger.setDebits(new ArrayList<>());
                             ledger.setCredits(credits);
-                            ledger.setSumDebit(sumOfDebit(ledger.getDebits()));
-                            ledger.setSumCredit(sumOfCredit(ledger.getCredits()));
                         }
 
+                        ledger.setSumDebit(sumOfDebit(ledger.getDebits()));
+                        ledger.setSumCredit(sumOfCredit(ledger.getCredits()));
+                        ledger.setDiffSumDebitCredit(diffSumDebitCreditOf(ledger));
+
                         ledger.setDebits(ledger.getDebits().stream()
-                                .map(ledgerDebit -> {
-                                    ledgerDebit.setLedger(ledger);
-                                    return ledgerDebit;
-                                }).collect(Collectors.toList()));
+                                .peek(ledgerDebit -> ledgerDebit.setLedger(ledger))
+                                .collect(Collectors.toList()));
                         ledger.setCredits(ledger.getCredits().stream()
-                                .map(ledgerCredit -> {
-                                    ledgerCredit.setLedger(ledger);
-                                    return ledgerCredit;
-                                }).collect(Collectors.toList()));
+                                .peek(ledgerCredit -> ledgerCredit.setLedger(ledger))
+                                .collect(Collectors.toList()));
 
                         ledgers.put(accountCode, ledger);
                     }
                 });
+    }
+
+    private List<LedgerDebit> buildBroughtForwardDebit(LocalDate date, Ledger ledger) {
+        var debits = new ArrayList<LedgerDebit>();
+
+        if (ledger != null && ledger.getSumDebit().abs().compareTo(ledger.getSumCredit().abs()) > 0) {
+            debits.add(LedgerDebit.builder()
+                    .date(date)
+                    .desc(BROUGHT_FORWARD_DESC)
+                    .amount(ledger.getDiffSumDebitCredit())
+                    .reference(ledger.getId())
+                    .build());
+        }
+        return debits;
+    }
+
+    private List<LedgerCredit> buildBroughtForwardCredit(LocalDate date, Ledger ledger) {
+        var credits = new ArrayList<LedgerCredit>();
+
+        if (ledger != null && ledger.getSumCredit().abs().compareTo(ledger.getSumDebit().abs()) > 0) {
+            credits.add(LedgerCredit.builder()
+                    .date(date)
+                    .desc(BROUGHT_FORWARD_DESC)
+                    .amount(ledger.getDiffSumDebitCredit())
+                    .reference(ledger.getId())
+                    .build());
+        }
+        return credits;
     }
 
     private static LedgerDebit buildLedgerDebit(GeneralJournal generalJournal, GeneralJournalCredit generalJournalCredit, BigDecimal debitAmount) {
@@ -268,13 +316,13 @@ public class LedgerBuilder {
         return diff;
     }
 
-    private BigDecimal sumOfCredit(List<LedgerCredit> credits) {
-        return credits.stream().map(LedgerCredit::getAmount)
+    private BigDecimal sumOfDebit(List<LedgerDebit> debits) {
+        return debits.stream().map(LedgerDebit::getAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    private BigDecimal sumOfDebit(List<LedgerDebit> debits) {
-        return debits.stream().map(LedgerDebit::getAmount)
+    private BigDecimal sumOfCredit(List<LedgerCredit> credits) {
+        return credits.stream().map(LedgerCredit::getAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 

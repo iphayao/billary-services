@@ -6,6 +6,7 @@ import org.mapstruct.MappingTarget;
 import org.mapstruct.Mappings;
 import th.co.readypaper.billary.common.model.LineItemMapper;
 import th.co.readypaper.billary.common.model.dto.expense.ExpenseDto;
+import th.co.readypaper.billary.common.model.dto.expense.ExpensePaymentTypeDto;
 import th.co.readypaper.billary.common.model.dto.expense.ExpenseVatTypeDto;
 import th.co.readypaper.billary.common.model.dto.expense.WithholdingTaxPercentDto;
 import th.co.readypaper.billary.repo.entity.expense.*;
@@ -55,4 +56,5 @@ public interface ExpenseMapper extends LineItemMapper<ExpenseLineItem> {
     })
     ExpensePayment update(@MappingTarget ExpensePayment target, ExpensePayment source);
 
+    ExpensePaymentTypeDto toDto(ExpensePaymentType expensePaymentType);
 }

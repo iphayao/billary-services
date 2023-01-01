@@ -1,7 +1,6 @@
 package th.co.readypaper.billary.repo.entity.account.ledger;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 import th.co.readypaper.billary.repo.entity.AuditableEntity;
 
 import javax.persistence.*;
@@ -11,6 +10,9 @@ import java.util.UUID;
 
 @Data
 @Entity
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class Ledger extends AuditableEntity<UUID> {
     @Id

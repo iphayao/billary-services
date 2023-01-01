@@ -5,9 +5,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import th.co.readypaper.billary.common.model.ResultPage;
+import th.co.readypaper.billary.common.model.dto.expense.ExpensePaymentTypeDto;
 import th.co.readypaper.billary.common.model.dto.expense.ExpenseVatTypeDto;
 import th.co.readypaper.billary.common.model.dto.expense.WithholdingTaxPercentDto;
 import th.co.readypaper.billary.common.service.DocumentIdBaseService;
@@ -35,6 +35,7 @@ public class ExpenseService extends DocumentIdBaseService<Expense> {
     private final ExpenseRepository expenseRepository;
     private final ExpenseVatTypeRepository expenseVatTypeRepository;
     private final WithholdingTaxPercentRepository withholdingTaxPercentRepository;
+    private final ExpensePaymentTypRepository expensePaymentTypRepository;
     private final ExpenseMapper expenseMapper;
 
     public ExpenseService(ExpenseRepository expenseRepository,
@@ -43,11 +44,13 @@ public class ExpenseService extends DocumentIdBaseService<Expense> {
                           DocumentSerialRepository documentSerialRepository,
                           ExpenseVatTypeRepository expenseVatTypeRepository,
                           WithholdingTaxPercentRepository withholdingTaxPercentRepository,
+                          ExpensePaymentTypRepository expensePaymentTypRepository,
                           ExpenseMapper expenseMapper) {
         super(companyRepository, documentRepository, documentSerialRepository, 7);
         this.expenseRepository = expenseRepository;
         this.expenseVatTypeRepository = expenseVatTypeRepository;
         this.withholdingTaxPercentRepository = withholdingTaxPercentRepository;
+        this.expensePaymentTypRepository = expensePaymentTypRepository;
         this.expenseMapper = expenseMapper;
     }
 
@@ -138,6 +141,13 @@ public class ExpenseService extends DocumentIdBaseService<Expense> {
                 .collect(Collectors.toList());
     }
 
+    public List<ExpensePaymentTypeDto> findExpensePaymentTypes() {
+        log.info("Find all expense payment types");
+        return expensePaymentTypRepository.findAll().stream()
+                .map(expenseMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
     public void deleteExpenseById(UUID id) {
         log.info("Delete expense by ID: {}", id);
         expenseRepository.findById(id)
@@ -163,5 +173,13 @@ public class ExpenseService extends DocumentIdBaseService<Expense> {
                 })
                 .map(expenseMapper::toDto)
                 .collect(Collectors.toList());
+    }
+
+    public List<ExpenseDto> findExpenseNoAccountingCode() {
+        return expenseRepository.findAll().stream()
+                .filter(expense -> expense.getLineItems().stream()
+                        .anyMatch(expenseLineItem -> expenseLineItem.getAccountChart() == null))
+                .map(expenseMapper::toDto)
+                .toList();
     }
 }
