@@ -16,6 +16,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static th.co.readypaper.billary.accounting.common.Constants.*;
 import static th.co.readypaper.billary.accounting.common.Constants.INVOICE_CREDIT_VAT_CODE;
@@ -36,9 +37,9 @@ public class GeneralJournalInvoiceBuilder {
 
     public List<GeneralJournal> build(LocalDate startDate, LocalDate endDate) {
         return invoiceRepository.findByIssuedDateBetween(startDate, endDate)
-                .parallelStream()
+                .stream().parallel()
                 .map(this::buildGeneralJournal)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     GeneralJournal buildGeneralJournal(Invoice invoice) {
