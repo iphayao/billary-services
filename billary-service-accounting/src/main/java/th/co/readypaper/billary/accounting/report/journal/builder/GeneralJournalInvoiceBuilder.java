@@ -36,7 +36,7 @@ public class GeneralJournalInvoiceBuilder {
 
     public List<GeneralJournal> build(LocalDate startDate, LocalDate endDate) {
         return invoiceRepository.findByIssuedDateBetween(startDate, endDate)
-                .stream()
+                .parallelStream()
                 .map(this::buildGeneralJournal)
                 .toList();
     }

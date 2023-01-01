@@ -35,7 +35,8 @@ public class GeneralJournalExpenseBuilder {
     }
 
     public List<GeneralJournal> build(LocalDate startDate, LocalDate endDate) {
-        return expenseRepository.findByIssuedDateBetween(startDate, endDate).stream()
+        return expenseRepository.findByIssuedDateBetween(startDate, endDate)
+                .parallelStream()
                 .map(this::buildGeneralJournal)
                 .toList();
     }
