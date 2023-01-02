@@ -2,9 +2,9 @@ package th.co.readypaper.billary.repo.entity.journal;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import th.co.readypaper.billary.repo.entity.AuditableCompanyEntity;
 import th.co.readypaper.billary.repo.entity.AuditableEntity;
 import th.co.readypaper.billary.repo.entity.contact.Contact;
-import th.co.readypaper.billary.repo.entity.expense.ExpenseStatus;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -15,7 +15,7 @@ import java.util.UUID;
 @Data
 @Entity
 @EqualsAndHashCode(callSuper = true)
-public class JournalEntry extends AuditableEntity<UUID> {
+public class JournalEntry extends AuditableCompanyEntity {
     @Id
     @GeneratedValue
     private UUID id;
@@ -34,7 +34,6 @@ public class JournalEntry extends AuditableEntity<UUID> {
             cascade = CascadeType.ALL)
     private List<JournalEntryLineItem> lineItems;
     private boolean vatInclusive;
-    private boolean useInputTax;
     private BigDecimal subTotal;
     private BigDecimal totalDiscount;
     private BigDecimal totalAfterDiscount;
@@ -42,11 +41,5 @@ public class JournalEntry extends AuditableEntity<UUID> {
     private BigDecimal vatableAmount;
     private BigDecimal vatAmount;
     private BigDecimal total;
-    private BigDecimal paymentAmount;
     private String remark;
-    @OneToOne(mappedBy = "journalEntry",
-            fetch = FetchType.LAZY,
-            cascade = CascadeType.ALL,
-            orphanRemoval = true)
-    private JournalEntryPayment payment;
 }

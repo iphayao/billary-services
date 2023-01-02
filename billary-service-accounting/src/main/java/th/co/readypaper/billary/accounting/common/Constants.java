@@ -15,4 +15,7 @@ public class Constants {
     public static final String PARAM_KEY_DOCUMENT_ID = "documentId";
     public static final String PARAM_KEY_CONTACT = "contact";// ภาษีซื้อ
     public static final String PARAM_KEY_SALE_CHANNEL = "channel";
+
+    public static final String RECEIPT_DEBIT_CODE = "1005";
+    public static final String RECEIPT_CREDIT_CODE = "1005";
 }

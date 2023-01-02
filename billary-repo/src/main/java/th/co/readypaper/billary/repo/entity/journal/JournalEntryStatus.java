@@ -1,18 +1,16 @@
 package th.co.readypaper.billary.repo.entity.journal;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import th.co.readypaper.billary.repo.entity.AuditableEntity;
-import th.co.readypaper.billary.repo.entity.expense.ExpenseStatus;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import java.util.Objects;
 
 @Data
 @Entity
 @NoArgsConstructor
-@EqualsAndHashCode(callSuper = true)
 public class JournalEntryStatus extends AuditableEntity<Integer> {
     @Id
     private Integer id;
@@ -24,9 +22,23 @@ public class JournalEntryStatus extends AuditableEntity<Integer> {
         this.id = id;
     }
 
-    public static final ExpenseStatus DRAFT = new ExpenseStatus(1);
-    public static final ExpenseStatus SUBMITTED = new ExpenseStatus(2);
-    public static final ExpenseStatus PAID = new ExpenseStatus(3);
-    public static final ExpenseStatus DELETED = new ExpenseStatus(4);
-    public static final ExpenseStatus VOIDED = new ExpenseStatus(5);
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        JournalEntryStatus that = (JournalEntryStatus) o;
+        return id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), id);
+    }
+
+    public static final JournalEntryStatus DRAFT = new JournalEntryStatus(1);
+    public static final JournalEntryStatus SUBMITTED = new JournalEntryStatus(2);
+    public static final JournalEntryStatus PAID = new JournalEntryStatus(3);
+    public static final JournalEntryStatus DELETED = new JournalEntryStatus(4);
+    public static final JournalEntryStatus VOIDED = new JournalEntryStatus(5);
 }

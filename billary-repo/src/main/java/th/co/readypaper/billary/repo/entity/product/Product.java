@@ -2,7 +2,7 @@ package th.co.readypaper.billary.repo.entity.product;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import th.co.readypaper.billary.repo.entity.AuditableEntity;
+import th.co.readypaper.billary.repo.entity.AuditableCompanyEntity;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -11,7 +11,7 @@ import java.util.UUID;
 @Data
 @Entity
 @EqualsAndHashCode(callSuper = true)
-public class Product extends AuditableEntity<UUID> {
+public class Product extends AuditableCompanyEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
