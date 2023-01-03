@@ -48,7 +48,7 @@ public class GeneralJournalReceiptBuilder {
                 .documentId(receipt.getDocumentId())
                 .description(descOf(receipt))
                 .type("Receipt")
-                .date(receipt.getIssuedDate())
+                .date(receipt.getPayment().getPaymentDate())
                 .debits(buildGeneralJournalDebit(receipt))
                 .credits(buildGeneralJournalCredit(receipt))
                 .build();

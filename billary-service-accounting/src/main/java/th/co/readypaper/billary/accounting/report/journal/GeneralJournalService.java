@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import th.co.readypaper.billary.accounting.common.model.AccountingYearlySummary;
 import th.co.readypaper.billary.accounting.report.journal.builder.GeneralJournalExpenseBuilder;
 import th.co.readypaper.billary.accounting.report.journal.builder.GeneralJournalInvoiceBuilder;
+import th.co.readypaper.billary.accounting.report.journal.builder.GeneralJournalJournalEntryBuilder;
 import th.co.readypaper.billary.accounting.report.journal.builder.GeneralJournalReceiptBuilder;
 import th.co.readypaper.billary.accounting.report.journal.model.GeneralJournalDto;
 import th.co.readypaper.billary.repo.entity.account.journal.GeneralJournal;
@@ -26,6 +27,7 @@ public class GeneralJournalService {
     private final GeneralJournalInvoiceBuilder generalJournalInvoiceBuilder;
     private final GeneralJournalExpenseBuilder generalJournalExpenseBuilder;
     private final GeneralJournalReceiptBuilder generalJournalReceiptBuilder;
+    private final GeneralJournalJournalEntryBuilder generalJournalJournalEntryBuilder;
     private final GeneralJournalExporter generalJournalExporter;
 
     public GeneralJournalService(GeneralJournalRepository generalJournalRepository,
@@ -33,12 +35,14 @@ public class GeneralJournalService {
                                  GeneralJournalInvoiceBuilder generalJournalInvoiceBuilder,
                                  GeneralJournalExpenseBuilder generalJournalExpenseBuilder,
                                  GeneralJournalReceiptBuilder generalJournalReceiptBuilder,
+                                 GeneralJournalJournalEntryBuilder generalJournalJournalEntryBuilder,
                                  GeneralJournalExporter generalJournalExporter) {
         this.generalJournalRepository = generalJournalRepository;
         this.generalJournalMapper = generalJournalMapper;
         this.generalJournalInvoiceBuilder = generalJournalInvoiceBuilder;
         this.generalJournalExpenseBuilder = generalJournalExpenseBuilder;
         this.generalJournalReceiptBuilder = generalJournalReceiptBuilder;
+        this.generalJournalJournalEntryBuilder = generalJournalJournalEntryBuilder;
         this.generalJournalExporter = generalJournalExporter;
     }
 
@@ -93,6 +97,7 @@ public class GeneralJournalService {
         generalJournals.addAll(generalJournalInvoiceBuilder.build(firstDay, lastDay));
         generalJournals.addAll(generalJournalExpenseBuilder.build(firstDay, lastDay));
         generalJournals.addAll(generalJournalReceiptBuilder.build(firstDay, lastDay));
+        generalJournals.addAll(generalJournalJournalEntryBuilder.build(firstDay, lastDay));
 
         return generalJournalRepository.saveAll(generalJournals).stream()
                 .map(generalJournalMapper::toDto)
