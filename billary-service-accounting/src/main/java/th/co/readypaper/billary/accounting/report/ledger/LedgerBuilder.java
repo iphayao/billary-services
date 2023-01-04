@@ -84,10 +84,11 @@ public class LedgerBuilder {
                     .month(firstDayOfMonth.getMonthValue())
                     .debits(buildBroughtForwardDebit(firstDayOfMonth, ledger))
                     .credits(buildBroughtForwardCredit(firstDayOfMonth, ledger))
-                    .sumDebit(sumOfDebit(ledger.getDebits()))
-                    .sumCredit(sumOfCredit(ledger.getCredits()))
                     .diffSumDebitCredit(diffSumDebitCreditOf(ledger))
                     .build();
+
+            broughtForwardLedger.setSumDebit(sumOfDebit(broughtForwardLedger.getDebits()));
+            broughtForwardLedger.setSumCredit(sumOfCredit(broughtForwardLedger.getCredits()));
 
             broughtForwardLedger.setDebits(broughtForwardLedger.getDebits().stream()
                     .peek(ledgerDebit -> ledgerDebit.setLedger(broughtForwardLedger))
@@ -176,7 +177,7 @@ public class LedgerBuilder {
                     List<LedgerCredit> credits = new ArrayList<>();
 
                     if (isWithHoldingTax(accountCode)) {
-                        if (generalJournal.getDebits().size() > 2) {
+                        if (generalJournal.getDebits().size() < 2) {
                             generalJournal.getDebits()
                                     .forEach(generalJournalDebit -> {
                                         if (!isExpenseWithVat(generalJournalDebit.getCode())) {
