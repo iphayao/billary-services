@@ -193,7 +193,7 @@ public class LedgerBuilder {
                                     .forEach(generalJournalDebit -> {
                                         if (!isExpenseWithVat(generalJournalDebit.getCode())) {
                                             credits.add(buildLedgerCredit(generalJournal, generalJournalDebit, generalJournalDebit.getAmount()
-                                                    .divide(debitTotalAmount, RoundingMode.HALF_DOWN)
+                                                    .divide(debitTotalAmount, 8, RoundingMode.CEILING)
                                                     .multiply(generalJournalCredit.getAmount())));
                                         }
                                     });
@@ -205,7 +205,7 @@ public class LedgerBuilder {
                                         if (isCreditContainWithHoldingTax(generalJournal)
                                                 && !isExpenseWithVat(generalJournalDebit.getCode())) {
                                             // รายการค่าใช้จ่ายที่ต้องหัก ภาษีหัก ณ ที่จ่ายออก
-                                            credits.add(buildLedgerCredit(generalJournal, generalJournalDebit, generalJournalDebit.getAmount()));
+                                            credits.add(buildLedgerCredit(generalJournal, generalJournalDebit, generalJournalCredit.getAmount()));
                                         } else {
                                             BigDecimal creditAmount = (generalJournal.getDebits().size() > 1)
                                                     ? generalJournalDebit.getAmount()
@@ -226,36 +226,36 @@ public class LedgerBuilder {
                                         credits.add(buildLedgerCredit(generalJournal, generalJournalDebit, creditAmount));
                                     });
                         }
-
-                        Ledger ledger;
-                        if (ledgers.containsKey(accountCode)) {
-                            // เพิ่มไปในบัญชีแยกประเภทที่มีอยู่
-                            ledger = ledgers.get(accountCode);
-                            ledger.getCredits().addAll(credits);
-                        } else {
-                            // สร้างบัญชีแยกประเภทใหม่
-                            ledger = new Ledger();
-                            ledger.setYear(generalJournal.getDate().getYear());
-                            ledger.setMonth(generalJournal.getDate().getMonthValue());
-                            ledger.setCode(accountCode);
-                            ledger.setDesc(generalJournalCredit.getDesc());
-                            ledger.setDebits(new ArrayList<>());
-                            ledger.setCredits(credits);
-                        }
-
-                        ledger.setSumDebit(sumOfDebit(ledger.getDebits()));
-                        ledger.setSumCredit(sumOfCredit(ledger.getCredits()));
-                        ledger.setDiffSumDebitCredit(diffSumDebitCreditOf(ledger));
-
-                        ledger.setDebits(ledger.getDebits().stream()
-                                .peek(ledgerDebit -> ledgerDebit.setLedger(ledger))
-                                .collect(Collectors.toList()));
-                        ledger.setCredits(ledger.getCredits().stream()
-                                .peek(ledgerCredit -> ledgerCredit.setLedger(ledger))
-                                .collect(Collectors.toList()));
-
-                        ledgers.put(accountCode, ledger);
                     }
+
+                    Ledger ledger;
+                    if (ledgers.containsKey(accountCode)) {
+                        // เพิ่มไปในบัญชีแยกประเภทที่มีอยู่
+                        ledger = ledgers.get(accountCode);
+                        ledger.getCredits().addAll(credits);
+                    } else {
+                        // สร้างบัญชีแยกประเภทใหม่
+                        ledger = new Ledger();
+                        ledger.setYear(generalJournal.getDate().getYear());
+                        ledger.setMonth(generalJournal.getDate().getMonthValue());
+                        ledger.setCode(accountCode);
+                        ledger.setDesc(generalJournalCredit.getDesc());
+                        ledger.setDebits(new ArrayList<>());
+                        ledger.setCredits(credits);
+                    }
+
+                    ledger.setSumDebit(sumOfDebit(ledger.getDebits()));
+                    ledger.setSumCredit(sumOfCredit(ledger.getCredits()));
+                    ledger.setDiffSumDebitCredit(diffSumDebitCreditOf(ledger));
+
+                    ledger.setDebits(ledger.getDebits().stream()
+                            .peek(ledgerDebit -> ledgerDebit.setLedger(ledger))
+                            .collect(Collectors.toList()));
+                    ledger.setCredits(ledger.getCredits().stream()
+                            .peek(ledgerCredit -> ledgerCredit.setLedger(ledger))
+                            .collect(Collectors.toList()));
+
+                    ledgers.put(accountCode, ledger);
                 });
     }
 
