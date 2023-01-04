@@ -16,8 +16,6 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.text.MessageFormat.format;
-import static th.co.readypaper.billary.accounting.common.CurrencyUtils.bahtOf;
-import static th.co.readypaper.billary.accounting.common.CurrencyUtils.stangOf;
 import static th.co.readypaper.billary.common.utils.DateUtils.THAI_MONTHS;
 
 @Component
@@ -25,7 +23,7 @@ public class LedgerExporter {
     public static final int CHARACTER_WIDTH = 256;
     public static final int ROW_HEIGHT_FACTOR = 20;
     public static final short ROW_HEIGHT = 30 * ROW_HEIGHT_FACTOR;
-    private final List<Integer> columnWidth = Arrays.asList(8, 6, 24, 10, 12, 8, 6, 24, 10, 12);
+    private final List<Integer> columnWidth = Arrays.asList(8, 6, 24, 10, 14, 8, 6, 24, 10, 14);
     private CellStyleHelper cellStyleHelper;
 
     public Optional<byte[]> export(List<Ledger> ledgers) {

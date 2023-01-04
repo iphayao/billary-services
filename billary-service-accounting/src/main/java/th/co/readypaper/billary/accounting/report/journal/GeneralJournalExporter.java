@@ -13,8 +13,6 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static th.co.readypaper.billary.accounting.common.CurrencyUtils.bahtOf;
-import static th.co.readypaper.billary.accounting.common.CurrencyUtils.stangOf;
 import static th.co.readypaper.billary.accounting.common.ExcelUtils.*;
 import static th.co.readypaper.billary.common.utils.DateUtils.THAI_MONTHS;
 

@@ -17,8 +17,6 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.lang.String.format;
-import static th.co.readypaper.billary.accounting.common.CurrencyUtils.bahtOf;
-import static th.co.readypaper.billary.accounting.common.CurrencyUtils.stangOf;
 import static th.co.readypaper.billary.common.utils.DateUtils.*;
 
 @Slf4j
@@ -272,4 +270,5 @@ public class TrialBalanceExporter {
     enum RowType {
         DEBIT, CREDIT, DESC, HEADER1, HEADER2
     }
+
 }
