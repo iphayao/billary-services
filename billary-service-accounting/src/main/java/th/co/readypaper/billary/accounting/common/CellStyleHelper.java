@@ -17,6 +17,8 @@ public class CellStyleHelper {
     private CellStyle headerCellStyleDoubleLeftBtm;
     private CellStyle headerCellStyleDoubleRightTop;
     private CellStyle headerCellStyleDoubleRightBtm;
+    private CellStyle headerCellStyleDoubleLeftRightTop;
+    private CellStyle headerCellStyleDoubleLeftRightBtm;
     private CellStyle headerCellStyleDoubleTop;
     private CellStyle headerCellStyleDoubleBtm;
 
@@ -25,6 +27,7 @@ public class CellStyleHelper {
     private CellStyle contentCellStyleDoubleLeftNumberYellow;
     private CellStyle contentCellStyleDoubleLeftCenter;
     private CellStyle contentCellStyleDoubleRightNumber;
+    private CellStyle getContentCellStyleDoubleLeftRightNumber;
     private CellStyle contentCellStyleNormal;
     private CellStyle contentCellStyleNumber;
     private CellStyle contentCellStyleNumberYellow;
@@ -34,6 +37,7 @@ public class CellStyleHelper {
     private CellStyle contentCellStyleDoubleBtm;
 
     private CellStyle contentCellStyleDoubleLeftBtmNumber;
+    private CellStyle contentCellStyleDoubleLeftRightBtmNumber;
     private CellStyle contentCellStyleDoubleRightBtmNumber;
 
     private XSSFFont titleFont;
@@ -65,16 +69,19 @@ public class CellStyleHelper {
         headerCellStyleDoubleLeftBtm = buildCenterCellStyle(workbook, headerFont, IndexedColors.GOLD, BorderStyle.THIN, BorderStyle.DOUBLE, BorderStyle.DOUBLE, BorderStyle.THIN);
         headerCellStyleDoubleRightTop = buildCenterCellStyle(workbook, headerFont, IndexedColors.GOLD, BorderStyle.DOUBLE, BorderStyle.THIN, BorderStyle.THIN, BorderStyle.DOUBLE);
         headerCellStyleDoubleRightBtm = buildCenterCellStyle(workbook, headerFont, IndexedColors.GOLD, BorderStyle.THIN, BorderStyle.DOUBLE, BorderStyle.THIN, BorderStyle.DOUBLE);
+        headerCellStyleDoubleLeftRightTop = buildCenterCellStyle(workbook, headerFont, IndexedColors.GOLD, BorderStyle.DOUBLE, BorderStyle.THIN, BorderStyle.DOUBLE, BorderStyle.DOUBLE);
+        ;
+        headerCellStyleDoubleLeftRightBtm = buildCenterCellStyle(workbook, headerFont, IndexedColors.GOLD, BorderStyle.THIN, BorderStyle.DOUBLE, BorderStyle.DOUBLE, BorderStyle.DOUBLE);
         headerCellStyleDoubleTop = buildCenterCellStyle(workbook, headerFont, IndexedColors.GOLD, BorderStyle.DOUBLE, BorderStyle.THIN, BorderStyle.THIN, BorderStyle.THIN);
         headerCellStyleDoubleBtm = buildCenterCellStyle(workbook, headerFont, IndexedColors.GOLD, BorderStyle.THIN, BorderStyle.DOUBLE, BorderStyle.THIN, BorderStyle.THIN);
-
 
         contentCellStyleDoubleLeft = buildCellStyle(workbook, contentFont, BorderStyle.DASHED, BorderStyle.DASHED, BorderStyle.DOUBLE, BorderStyle.THIN);
         contentCellStyleDoubleLeftNumber = buildNumberCellStyle(workbook, contentFont, BorderStyle.DASHED, BorderStyle.DASHED, BorderStyle.DOUBLE, BorderStyle.THIN);
         contentCellStyleDoubleLeftCenter = buildCenterCellStyle(workbook, contentFont, BorderStyle.DASHED, BorderStyle.DASHED, BorderStyle.DOUBLE, BorderStyle.THIN);
         contentCellStyleDoubleRightNumber = buildNumberCellStyle(workbook, contentFont, BorderStyle.DASHED, BorderStyle.DASHED, BorderStyle.THIN, BorderStyle.DOUBLE);
+        getContentCellStyleDoubleLeftRightNumber = buildNumberCellStyle(workbook, contentFont, BorderStyle.DASHED, BorderStyle.DASHED, BorderStyle.DOUBLE, BorderStyle.DOUBLE);
 
-        contentCellStyleNormal = buildCellStyle(workbook, contentFont,  BorderStyle.DASHED, BorderStyle.DASHED, BorderStyle.THIN, BorderStyle.THIN);
+        contentCellStyleNormal = buildCellStyle(workbook, contentFont, BorderStyle.DASHED, BorderStyle.DASHED, BorderStyle.THIN, BorderStyle.THIN);
         contentCellStyleNumber = buildNumberCellStyle(workbook, contentFont, BorderStyle.DASHED, BorderStyle.DASHED, BorderStyle.THIN, BorderStyle.THIN);
 
         contentCellStyleDoubleLeftBtm = buildCenterCellStyle(workbook, headerFont, BorderStyle.DASHED, BorderStyle.DOUBLE, BorderStyle.DOUBLE, BorderStyle.THIN);
@@ -85,6 +92,7 @@ public class CellStyleHelper {
         contentCellStyleNumberYellow = buildNumberCellStyle(workbook, contentFont, IndexedColors.YELLOW, BorderStyle.DASHED, BorderStyle.DASHED, BorderStyle.DOUBLE, BorderStyle.THIN);
 
         contentCellStyleDoubleLeftBtmNumber = buildNumberCellStyle(workbook, headerFont, BorderStyle.DASHED, BorderStyle.DOUBLE, BorderStyle.DOUBLE, BorderStyle.THIN);
+        contentCellStyleDoubleLeftRightBtmNumber= buildNumberCellStyle(workbook, headerFont, BorderStyle.DASHED, BorderStyle.DOUBLE, BorderStyle.DOUBLE, BorderStyle.DOUBLE);
         contentCellStyleDoubleRightBtmNumber = buildNumberCellStyle(workbook, headerFont, BorderStyle.DASHED, BorderStyle.DOUBLE, BorderStyle.THIN, BorderStyle.DOUBLE);
     }
 

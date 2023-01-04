@@ -9,6 +9,7 @@ import th.co.readypaper.billary.repo.entity.account.journal.GeneralJournal;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -27,26 +28,25 @@ public class GeneralJournalExporter {
     public static final int DEBIT_DESC_IDX = 2;
     public static final int DEBIT_CODE_IDX = 4;
     public static final int DEBIT_BAHT_IDX = 5;
-    public static final int DEBIT_STNG_IDX = 6;
     public static final int CREDIT_DESC_IDX = 3;
     public static final int CREDIT_CODE_IDX = 4;
-    public static final int CREDIT_BAHT_IDX = 7;
-    public static final int CREDIT_STNG_IDX = 8;
+    public static final int CREDIT_BAHT_IDX = 6;
     public static final int DESCRIPTION_IDX = 2;
     public static final int THAI_BD_YEAR_CONVERTER_FACTOR = 543;
-    private final List<Integer> columnWidth = Arrays.asList(7, 5, 12, 34, 7, 10, 6, 10, 6);
+    private final List<Integer> columnWidth = Arrays.asList(8, 6, 12, 34, 10, 16, 16);
 
     private CellStyle normalCellStyle;
-    private CellStyle wrapTextCellStyle;
     private CellStyle debitCreditCellStyleDouble;
     private CellStyle debitCreditCellStyle;
     private CellStyle descCellStyle;
     private CellStyle descCellStyleDouble;
-    private CellStyle numberCellStyle;
     private CellStyle numberCellStyleDouble;
+    private CellStyle numberCellStyleDoubleRight;
 
     private CellStyle headerCellStyleDoubleLeftTop;
+    private CellStyle headerCellStyleDoubleRightTop;
     private CellStyle headerCellStyleDoubleLeftBtm;
+    private CellStyle headerCellStyleDoubleRightBtm;
     private CellStyle headerCellStyleDoubleTop;
     private CellStyle headerCellStyleDoubleBtm;
 
@@ -73,8 +73,9 @@ public class GeneralJournalExporter {
 
             descCellStyle = buildCellStyle(workbook, normalFont, BorderStyle.DASHED, BorderStyle.MEDIUM, BorderStyle.NONE, BorderStyle.THIN);
             descCellStyleDouble = buildCellStyle(workbook, normalFont, BorderStyle.DASHED, BorderStyle.MEDIUM, BorderStyle.DOUBLE, BorderStyle.NONE);
-            numberCellStyle = buildNumberCellStyle(workbook, normalFont, BorderStyle.DASHED, BorderStyle.DASHED, BorderStyle.THIN, BorderStyle.THIN);
+            CellStyle numberCellStyle = buildNumberCellStyle(workbook, normalFont, BorderStyle.DASHED, BorderStyle.DASHED, BorderStyle.THIN, BorderStyle.THIN);
             numberCellStyleDouble = buildNumberCellStyle(workbook, normalFont, BorderStyle.DASHED, BorderStyle.DASHED, BorderStyle.DOUBLE, BorderStyle.THIN);
+            numberCellStyleDoubleRight = buildNumberCellStyle(workbook, normalFont, BorderStyle.DASHED, BorderStyle.DASHED, BorderStyle.THIN, BorderStyle.DOUBLE);
 
             descCellStyleDouble.setWrapText(false);
 
@@ -88,8 +89,7 @@ public class GeneralJournalExporter {
                             Map<Integer, Object> valueMap = new HashMap<>();
                             valueMap.put(DEBIT_DESC_IDX, journalEntry.getDesc());
                             valueMap.put(DEBIT_CODE_IDX, Integer.valueOf(journalEntry.getCode()));
-                            valueMap.put(DEBIT_BAHT_IDX, bahtOf(journalEntry.getAmount()));
-                            valueMap.put(DEBIT_STNG_IDX, stangOf(journalEntry.getAmount()));
+                            valueMap.put(DEBIT_BAHT_IDX, journalEntry.getAmount());
 
                             buildRowCellAndPutValue(sheet, rowCount, RowType.DEBIT, valueMap);
                         });
@@ -99,8 +99,7 @@ public class GeneralJournalExporter {
                             Map<Integer, Object> valueMap = new HashMap<>();
                             valueMap.put(CREDIT_DESC_IDX, journalEntry.getDesc());
                             valueMap.put(CREDIT_CODE_IDX, Integer.valueOf(journalEntry.getCode()));
-                            valueMap.put(CREDIT_BAHT_IDX, bahtOf(journalEntry.getAmount()));
-                            valueMap.put(CREDIT_STNG_IDX, stangOf(journalEntry.getAmount()));
+                            valueMap.put(CREDIT_BAHT_IDX, journalEntry.getAmount());
 
                             buildRowCellAndPutValue(sheet, rowCount, RowType.CREDIT, valueMap);
                         });
@@ -171,6 +170,8 @@ public class GeneralJournalExporter {
                 cell.setCellValue((String) v);
             } else if (v instanceof Integer) {
                 cell.setCellValue((Integer) v);
+            } else if (v instanceof BigDecimal) {
+                cell.setCellValue(((BigDecimal) v).doubleValue());
             }
         });
     }
@@ -182,14 +183,14 @@ public class GeneralJournalExporter {
     }
 
     private void buildEntryCells(Row row, RowType rowType) {
-        for (int i = 0; i < 9; i++) {
+        for (int i = 0; i < 7; i++) {
             Cell cell = row.createCell(i);
             cell.setCellStyle(selectCellStyle(i, rowType));
         }
     }
 
     private void buildHeaderCells(Row row, RowType rowType) {
-        for (int i = 0; i < 9; i++) {
+        for (int i = 0; i < 7; i++) {
             Cell cell = row.createCell(i);
             cell.setCellStyle(selectHeaderCellStyle(i, rowType));
         }
@@ -197,20 +198,11 @@ public class GeneralJournalExporter {
 
     private CellStyle selectCellStyle(int i, RowType rowType) {
         if (isNotDebitCreditDescCell(i)) {
-            CellStyle cellStyle;
-            switch (i) {
-                case 5:
-                case 7:
-                    cellStyle = numberCellStyleDouble;
-                    break;
-                case 6:
-                case 8:
-                    cellStyle = numberCellStyle;
-                    break;
-                default:
-                    cellStyle = normalCellStyle;
-            }
-            return cellStyle;
+            return switch (i) {
+                case 5 -> numberCellStyleDouble;
+                case 6 -> numberCellStyleDoubleRight;
+                default -> normalCellStyle;
+            };
 
         } else {
             if (rowType == RowType.DESC) {
@@ -230,28 +222,17 @@ public class GeneralJournalExporter {
     private CellStyle selectHeaderCellStyle(int i, RowType rowType) {
         CellStyle cellStyle;
         if (rowType == RowType.HEADER1) {
-            switch (i) {
-                case 4:
-                    cellStyle = wrapTextCellStyle;
-                    break;
-                case 2:
-                case 5:
-                case 7:
-                    cellStyle = headerCellStyleDoubleLeftTop;
-                    break;
-                default:
-                    cellStyle = headerCellStyleDoubleTop;
-            }
+            cellStyle = switch (i) {
+                case 2, 5 -> headerCellStyleDoubleLeftTop;
+                case 6 -> headerCellStyleDoubleRightTop;
+                default -> headerCellStyleDoubleTop;
+            };
         } else {
-            switch (i) {
-                case 2:
-                case 5:
-                case 7:
-                    cellStyle = headerCellStyleDoubleLeftBtm;
-                    break;
-                default:
-                    cellStyle = headerCellStyleDoubleBtm;
-            }
+            cellStyle = switch (i) {
+                case 2, 5 -> headerCellStyleDoubleLeftBtm;
+                case 6 -> headerCellStyleDoubleRightBtm;
+                default -> headerCellStyleDoubleBtm;
+            };
         }
         return cellStyle;
     }
@@ -273,7 +254,7 @@ public class GeneralJournalExporter {
 
         headerTitleStyle.setFont(headerTitleFont);
 
-        sheet.addMergedRegion(CellRangeAddress.valueOf("A1:I1"));
+        sheet.addMergedRegion(CellRangeAddress.valueOf("A1:G1"));
         Row headerTitleRow = sheet.createRow(0);
         Cell headerTitleCell = headerTitleRow.createCell(0);
         headerTitleRow.setHeight(ROW_HEIGHT);
@@ -284,9 +265,11 @@ public class GeneralJournalExporter {
         headerFont.setFontName(FONT_TH_SARABUN_NEW);
         headerFont.setFontHeightInPoints((short) 16);
 
-        wrapTextCellStyle = buildCenterCellStyleWrapText(workbook, headerFont, IndexedColors.GOLD, BorderStyle.DASHED, BorderStyle.DASHED, BorderStyle.THIN, BorderStyle.THIN);
+        CellStyle wrapTextCellStyle = buildCenterCellStyleWrapText(workbook, headerFont, IndexedColors.GOLD, BorderStyle.DASHED, BorderStyle.DASHED, BorderStyle.THIN, BorderStyle.THIN);
         headerCellStyleDoubleLeftTop = buildCenterCellStyle(workbook, headerFont, IndexedColors.GOLD, BorderStyle.DOUBLE, BorderStyle.THIN, BorderStyle.DOUBLE, BorderStyle.THIN);
+        headerCellStyleDoubleRightTop = buildCenterCellStyle(workbook, headerFont, IndexedColors.GOLD, BorderStyle.DOUBLE, BorderStyle.THIN, BorderStyle.THIN, BorderStyle.DOUBLE);
         headerCellStyleDoubleLeftBtm = buildCenterCellStyle(workbook, headerFont, IndexedColors.GOLD, BorderStyle.THIN, BorderStyle.DOUBLE, BorderStyle.DOUBLE, BorderStyle.THIN);
+        headerCellStyleDoubleRightBtm = buildCenterCellStyle(workbook, headerFont, IndexedColors.GOLD, BorderStyle.THIN, BorderStyle.DOUBLE, BorderStyle.THIN, BorderStyle.DOUBLE);
         headerCellStyleDoubleTop = buildCenterCellStyle(workbook, headerFont, IndexedColors.GOLD, BorderStyle.DOUBLE, BorderStyle.THIN, BorderStyle.THIN, BorderStyle.THIN);
         headerCellStyleDoubleBtm = buildCenterCellStyle(workbook, headerFont, IndexedColors.GOLD, BorderStyle.THIN, BorderStyle.DOUBLE, BorderStyle.THIN, BorderStyle.THIN);
 
@@ -303,23 +286,19 @@ public class GeneralJournalExporter {
         headerRow1Map.put(2, "รายการ");
         headerRow1Map.put(4, "เลขที่บัญชี");
         headerRow1Map.put(5, "เดบิต");
-        headerRow1Map.put(7, "เครดิต");
+        headerRow1Map.put(6, "เครดิต");
         setCellValue(headerRow1, headerRow1Map);
 
         Map<Integer, Object> headerRow2Map = new HashMap<>();
         headerRow2Map.put(0, "เดือน");
         headerRow2Map.put(1, "วัน");
         headerRow2Map.put(5, "บาท");
-        headerRow2Map.put(6, "ส.ต.");
-        headerRow2Map.put(7, "บาท");
-        headerRow2Map.put(8, "ส.ต.");
+        headerRow2Map.put(6, "บาท");
         setCellValue(headerRow2, headerRow2Map);
 
         sheet.addMergedRegion(CellRangeAddress.valueOf("A2:B2")); // พ.ศ.
         sheet.addMergedRegion(CellRangeAddress.valueOf("C2:D3")); // รายการ
         sheet.addMergedRegion(CellRangeAddress.valueOf("E2:E3")); // เลขที่บัญชี
-        sheet.addMergedRegion(CellRangeAddress.valueOf("F2:G2")); // เดบิต
-        sheet.addMergedRegion(CellRangeAddress.valueOf("H2:I2")); // เครดิต
 
     }
 

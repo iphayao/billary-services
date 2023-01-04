@@ -25,7 +25,7 @@ public class LedgerExporter {
     public static final int CHARACTER_WIDTH = 256;
     public static final int ROW_HEIGHT_FACTOR = 20;
     public static final short ROW_HEIGHT = 30 * ROW_HEIGHT_FACTOR;
-    private final List<Integer> columnWidth = Arrays.asList(7, 5, 24, 6, 12, 6, 7, 5, 24, 6, 12, 6);
+    private final List<Integer> columnWidth = Arrays.asList(8, 6, 24, 10, 12, 8, 6, 24, 10, 12);
     private CellStyleHelper cellStyleHelper;
 
     public Optional<byte[]> export(List<Ledger> ledgers) {
@@ -88,8 +88,7 @@ public class LedgerExporter {
                     prevDebitDay = currDay;
                 }
                 fillingMap.put(2, entry.getDesc());
-                fillingMap.put(4, bahtOf(entry.getAmount()));
-                fillingMap.put(5, stangOf(entry.getAmount()));
+                fillingMap.put(4, entry.getAmount());
 
                 setCellValue(row, fillingMap);
             }
@@ -101,16 +100,15 @@ public class LedgerExporter {
                 int currDay = entry.getDate().getDayOfMonth();
 
                 if (prevCreditMonth != currMonth) {
-                    fillingMap.put(6, THAI_MONTHS[currMonth]);
+                    fillingMap.put(5, THAI_MONTHS[currMonth]);
                     prevCreditMonth = currMonth;
                 }
                 if (prevCreditDay != currDay) {
-                    fillingMap.put(7, currDay);
+                    fillingMap.put(6, currDay);
                     prevCreditDay = currDay;
                 }
-                fillingMap.put(8, entry.getDesc());
-                fillingMap.put(10, bahtOf(entry.getAmount()));
-                fillingMap.put(11, stangOf(entry.getAmount()));
+                fillingMap.put(7, entry.getDesc());
+                fillingMap.put(9, entry.getAmount());
 
                 setCellValue(row, fillingMap);
             }
@@ -120,10 +118,8 @@ public class LedgerExporter {
         // Sum Debit
         Row row = sheet.getRow(rowCount.get() - 3);
         Map<Integer, Object> summaryFillingMap = new HashMap<>();
-        summaryFillingMap.put(4, bahtOf(ledger.getSumDebit()));
-        summaryFillingMap.put(5, stangOf(ledger.getSumDebit()));
-        summaryFillingMap.put(10, bahtOf(ledger.getSumCredit()));
-        summaryFillingMap.put(11, stangOf(ledger.getSumCredit()));
+        summaryFillingMap.put(4, ledger.getSumDebit());
+        summaryFillingMap.put(9, ledger.getSumCredit());
         setCellHighlight(workbook, cellStyleHelper.getContentFont(), row, IndexedColors.YELLOW, summaryFillingMap);
 
         // ผลต่างระหว่าง เดบิต กับ เครดิต
@@ -131,11 +127,9 @@ public class LedgerExporter {
         row = sheet.getRow(rowCount.get() - 2);
         Map<Integer, Object> diffFillingMap = new HashMap<>();
         if (ledger.getSumDebit().abs().compareTo(ledger.getSumCredit().abs()) > 0) {
-            diffFillingMap.put(4, bahtOf(diffSum));
-            diffFillingMap.put(5, stangOf(diffSum));
+            diffFillingMap.put(4, diffSum);
         } else {
-            diffFillingMap.put(10, bahtOf(diffSum));
-            diffFillingMap.put(11, stangOf(diffSum));
+            diffFillingMap.put(9, diffSum);
         }
         setCellHighlight(workbook, cellStyleHelper.getContentFont(), row, IndexedColors.BRIGHT_GREEN, diffFillingMap);
 
@@ -169,12 +163,12 @@ public class LedgerExporter {
             row.setHeight(ROW_HEIGHT);
 
             if (i != lastRow) {
-                for (int j = 0; j < 12; j++) {
+                for (int j = 0; j < 10; j++) {
                     Cell cell = row.createCell(j);
                     cell.setCellStyle(selectContentCellStyle(j));
                 }
             } else {
-                for (int j = 0; j < 12; j++) {
+                for (int j = 0; j < 10; j++) {
                     Cell cell = row.createCell(j);
                     cell.setCellStyle(selectContentCellStyleBottom(j));
                 }
@@ -183,54 +177,21 @@ public class LedgerExporter {
     }
 
     private CellStyle selectContentCellStyleBottom(int cellCount) {
-        CellStyle cellStyle;
-
-        switch (cellCount) {
-            case 0:
-            case 2:
-            case 4:
-            case 6:
-            case 8:
-            case 10:
-                cellStyle = cellStyleHelper.getContentCellStyleDoubleLeftBtm();
-                break;
-            case 11:
-                cellStyle = cellStyleHelper.getContentCellStyleDoubleRightBtm();
-                break;
-            default:
-                cellStyle = cellStyleHelper.getContentCellStyleDoubleBtm();
-        }
-
-        return cellStyle;
+        return switch (cellCount) {
+            case 0, 2, 4, 5, 7 -> cellStyleHelper.getContentCellStyleDoubleLeftBtm();
+            case 9 -> cellStyleHelper.getContentCellStyleDoubleRightBtm();
+            default -> cellStyleHelper.getContentCellStyleDoubleBtm();
+        };
     }
 
     private CellStyle selectContentCellStyle(int cellCount) {
-        CellStyle cellStyle;
-
-        switch (cellCount) {
-            case 4:
-            case 10:
-                cellStyle = cellStyleHelper.getContentCellStyleDoubleLeftNumber();
-                break;
-            case 5:
-                cellStyle = cellStyleHelper.getContentCellStyleNumber();
-                break;
-            case 0:
-            case 6:
-                cellStyle = cellStyleHelper.getContentCellStyleDoubleLeftCenter();
-                break;
-            case 2:
-            case 8:
-                cellStyle = cellStyleHelper.getContentCellStyleDoubleLeft();
-                break;
-            case 11:
-                cellStyle = cellStyleHelper.getContentCellStyleDoubleRightNumber();
-                break;
-            default:
-                cellStyle = cellStyleHelper.getContentCellStyleNormal();
-        }
-
-        return cellStyle;
+        return switch (cellCount) {
+            case 4 -> cellStyleHelper.getContentCellStyleDoubleLeftNumber();
+            case 0, 5 -> cellStyleHelper.getContentCellStyleDoubleLeftCenter();
+            case 2, 7 -> cellStyleHelper.getContentCellStyleDoubleLeft();
+            case 9 -> cellStyleHelper.getContentCellStyleDoubleRightNumber();
+            default -> cellStyleHelper.getContentCellStyleNormal();
+        };
     }
 
     private void buildHeader(XSSFWorkbook workbook, Sheet sheet, Ledger ledger, AtomicInteger rowCount) {
@@ -243,16 +204,15 @@ public class LedgerExporter {
         headerRow1Map.put(2, "รายการ");
         headerRow1Map.put(3, "หน้าบัญชี");
         headerRow1Map.put(4, "เดบิต");
-        headerRow1Map.put(6, "พ.ศ. " + ledger.getYear());
-        headerRow1Map.put(8, "รายการ");
-        headerRow1Map.put(9, "หน้าบัญชี");
-        headerRow1Map.put(10, "เครดิต");
+        headerRow1Map.put(5, "พ.ศ. " + ledger.getYear());
+        headerRow1Map.put(7, "รายการ");
+        headerRow1Map.put(8, "หน้าบัญชี");
+        headerRow1Map.put(9, "เครดิต");
         setCellValue(headerRow1, headerRow1Map);
 
         sheet.addMergedRegion(CellRangeAddress.valueOf("A" + (rowCount.get() + 1) + ":B" + (rowCount.get() + 1)));
         sheet.addMergedRegion(CellRangeAddress.valueOf("C" + (rowCount.get() + 1) + ":C" + (rowCount.get() + 2)));
         sheet.addMergedRegion(CellRangeAddress.valueOf("D" + (rowCount.get() + 1) + ":D" + (rowCount.get() + 2)));
-        sheet.addMergedRegion(CellRangeAddress.valueOf("E" + (rowCount.get() + 1) + ":F" + (rowCount.get() + 1)));
 
         rowCount.getAndIncrement();
 
@@ -263,17 +223,14 @@ public class LedgerExporter {
         headerRow2Map.put(0, "เดือน");
         headerRow2Map.put(1, "วัน");
         headerRow2Map.put(4, "บาท");
-        headerRow2Map.put(5, "สต.");
-        headerRow2Map.put(6, "เดือน");
-        headerRow2Map.put(7, "วัน");
-        headerRow2Map.put(10, "บาท");
-        headerRow2Map.put(11, "สต.");
+        headerRow2Map.put(5, "เดือน");
+        headerRow2Map.put(6, "วัน");
+        headerRow2Map.put(9, "บาท");
         setCellValue(headerRow2, headerRow2Map);
 
-        sheet.addMergedRegion(CellRangeAddress.valueOf("G" + (rowCount.get()) + ":H" + (rowCount.get())));
+        sheet.addMergedRegion(CellRangeAddress.valueOf("F" + (rowCount.get()) + ":G" + (rowCount.get())));
+        sheet.addMergedRegion(CellRangeAddress.valueOf("H" + (rowCount.get()) + ":H" + (rowCount.get() + 1)));
         sheet.addMergedRegion(CellRangeAddress.valueOf("I" + (rowCount.get()) + ":I" + (rowCount.get() + 1)));
-        sheet.addMergedRegion(CellRangeAddress.valueOf("J" + (rowCount.get()) + ":J" + (rowCount.get() + 1)));
-        sheet.addMergedRegion(CellRangeAddress.valueOf("K" + (rowCount.get()) + ":L" + (rowCount.get())));
 
         rowCount.getAndIncrement();
 
@@ -286,6 +243,8 @@ public class LedgerExporter {
                 cell.setCellValue((String) v);
             } else if (v instanceof Integer) {
                 cell.setCellValue((Integer) v);
+            } else if (v instanceof BigDecimal) {
+                cell.setCellValue(((BigDecimal) v).doubleValue());
             }
         });
     }
@@ -297,6 +256,8 @@ public class LedgerExporter {
                 cell.setCellValue((String) v);
             } else if (v instanceof Integer) {
                 cell.setCellValue((Integer) v);
+            } else if (v instanceof BigDecimal) {
+                cell.setCellValue(((BigDecimal) v).doubleValue());
             }
             cell.setCellStyle(fillColorCellOf(workbook, font, cell, color));
         });
@@ -314,37 +275,17 @@ public class LedgerExporter {
     private CellStyle selectHeaderCellStyle(int cellInx, RowType rowType) {
         CellStyle cellStyle;
         if (rowType == RowType.HEADER1) {
-            switch (cellInx) {
-                case 0:
-                case 2:
-                case 4:
-                case 6:
-                case 8:
-                case 10:
-                    cellStyle = cellStyleHelper.getHeaderCellStyleDoubleLeftTop();
-                    break;
-                case 11:
-                    cellStyle = cellStyleHelper.getHeaderCellStyleDoubleRightTop();
-                    break;
-                default:
-                    cellStyle = cellStyleHelper.getHeaderCellStyleDoubleTop();
-            }
+            cellStyle = switch (cellInx) {
+                case 0, 2, 4, 5, 7 -> cellStyleHelper.getHeaderCellStyleDoubleLeftTop();
+                case 9 -> cellStyleHelper.getHeaderCellStyleDoubleRightTop();
+                default -> cellStyleHelper.getHeaderCellStyleDoubleTop();
+            };
         } else {
-            switch (cellInx) {
-                case 0:
-                case 2:
-                case 4:
-                case 6:
-                case 8:
-                case 10:
-                    cellStyle = cellStyleHelper.getHeaderCellStyleDoubleLeftBtm();
-                    break;
-                case 11:
-                    cellStyle = cellStyleHelper.getHeaderCellStyleDoubleRightBtm();
-                    break;
-                default:
-                    cellStyle = cellStyleHelper.getHeaderCellStyleDoubleBtm();
-            }
+            cellStyle = switch (cellInx) {
+                case 0, 2, 4, 5, 7 -> cellStyleHelper.getHeaderCellStyleDoubleLeftBtm();
+                case 9 -> cellStyleHelper.getHeaderCellStyleDoubleRightBtm();
+                default -> cellStyleHelper.getHeaderCellStyleDoubleBtm();
+            };
         }
         return cellStyle;
     }
@@ -366,13 +307,13 @@ public class LedgerExporter {
         cell = headerTitleRow.getCell(0);
         cell.setCellValue(ledger.getDesc());
 
-        cell = headerTitleRow.getCell(8);
+        cell = headerTitleRow.getCell(7);
         cell.setCellValue("เลขบัญชี");
 
-        cell = headerTitleRow.getCell(10);
+        cell = headerTitleRow.getCell(8);
         cell.setCellValue(Integer.parseInt(ledger.getCode()));
 
-        String mergeRegion = "A" + (rowCount.get() + 1) + ":H" + (rowCount.get() + 1);
+        String mergeRegion = "A" + (rowCount.get() + 1) + ":G" + (rowCount.get() + 1);
         sheet.addMergedRegion(CellRangeAddress.valueOf(mergeRegion));
 
         rowCount.getAndIncrement();

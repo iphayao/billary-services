@@ -55,7 +55,7 @@ public class ExcelUtils {
         CellStyle cellStyle = buildCellStyle(workbook, font, topBorderStyle, bottomBorderStyle, leftBorderStyle, rightBorderStyle);
         cellStyle.setAlignment(HorizontalAlignment.CENTER);
         cellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-        cellStyle.setDataFormat(format.getFormat("_(* #,##0_);_(* (#,##0);_(* \"-\"??_);_(@_)"));
+        cellStyle.setDataFormat(format.getFormat("_(* #,##0.00_);_(* (#,##0.00);_(* \"-\"??_);_(@_)"));
         return cellStyle;
     }
 

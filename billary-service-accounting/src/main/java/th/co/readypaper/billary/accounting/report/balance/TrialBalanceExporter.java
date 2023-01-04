@@ -11,6 +11,7 @@ import th.co.readypaper.billary.repo.entity.account.balance.TrialBalance;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -28,7 +29,7 @@ public class TrialBalanceExporter {
     public static final short ROW_HEIGHT = 30 * ROW_HEIGHT_FACTOR;
     public static final String FONT_TH_SARABUN_NEW = "TH Sarabun New";
 
-    private final List<Integer> columnWidth = Arrays.asList(40, 10, 14, 6, 12, 6);
+    private final List<Integer> columnWidth = Arrays.asList(40, 10, 16, 16);
 
     private CellStyleHelper cellStyleHelper;
 
@@ -65,10 +66,8 @@ public class TrialBalanceExporter {
                     Map<Integer, Object> fillingMap = new HashMap<>();
                     fillingMap.put(0, trialBalanceEntry.getAccountName());
                     fillingMap.put(1, Integer.parseInt(trialBalanceEntry.getAccountCode()));
-                    fillingMap.put(2, bahtOf(trialBalanceEntry.getDebit()));
-                    fillingMap.put(3, stangOf(trialBalanceEntry.getDebit()));
-                    fillingMap.put(4, bahtOf(trialBalanceEntry.getCredit()));
-                    fillingMap.put(5, stangOf(trialBalanceEntry.getCredit()));
+                    fillingMap.put(2, trialBalanceEntry.getDebit());
+                    fillingMap.put(3, trialBalanceEntry.getCredit());
 
                     setCellValue(sheet.getRow(rowCount.get()), fillingMap);
 
@@ -82,10 +81,8 @@ public class TrialBalanceExporter {
 
         Map<Integer, Object> fillingMap = new HashMap<>();
 
-        fillingMap.put(2, bahtOf(trialBalance.getDebitAmount()));
-        fillingMap.put(3, stangOf(trialBalance.getDebitAmount()));
-        fillingMap.put(4, bahtOf(trialBalance.getCreditAmount()));
-        fillingMap.put(5, stangOf(trialBalance.getCreditAmount()));
+        fillingMap.put(2, trialBalance.getDebitAmount());
+        fillingMap.put(3, trialBalance.getCreditAmount());
 
         setCellHighlight(workbook, cellStyleHelper.getContentFont(), sheet.getRow(rowCount.get()), IndexedColors.YELLOW, fillingMap);
     }
@@ -106,51 +103,19 @@ public class TrialBalanceExporter {
     }
 
     private CellStyle selectContentStyle(int colIdx) {
-        CellStyle cellStyle;
-
-        switch (colIdx) {
-            case 0:
-                cellStyle = cellStyleHelper.getContentCellStyleDoubleLeft();
-                break;
-            case 1:
-                cellStyle = cellStyleHelper.getContentCellStyleDoubleLeftCenter();
-                break;
-            case 2:
-            case 4:
-                cellStyle = cellStyleHelper.getContentCellStyleDoubleLeftNumber();
-                break;
-            case 3:
-                cellStyle = cellStyleHelper.getContentCellStyleNumber();
-                break;
-            case 5:
-                cellStyle = cellStyleHelper.getContentCellStyleDoubleRightNumber();
-                break;
-            default:
-                cellStyle = cellStyleHelper.getContentCellStyleNormal();
-                break;
-        }
-
-        return cellStyle;
+        return switch (colIdx) {
+            case 0 -> cellStyleHelper.getContentCellStyleDoubleLeft();
+            case 1 -> cellStyleHelper.getContentCellStyleDoubleLeftCenter();
+            case 2, 3 -> cellStyleHelper.getGetContentCellStyleDoubleLeftRightNumber();
+            default -> cellStyleHelper.getContentCellStyleNormal();
+        };
     }
 
     private CellStyle selectContentStyleBottom(int colIdx) {
-        CellStyle cellStyle;
-
-        switch (colIdx) {
-            case 2:
-            case 4:
-                cellStyle = cellStyleHelper.getContentCellStyleDoubleLeftBtmNumber();
-                break;
-            case 3:
-            case 5:
-                cellStyle = cellStyleHelper.getContentCellStyleDoubleRightBtmNumber();
-                break;
-            default:
-                cellStyle = cellStyleHelper.getContentCellStyleDoubleLeftBtm();
-                break;
-        }
-
-        return cellStyle;
+        return switch (colIdx) {
+            case 2, 3 -> cellStyleHelper.getContentCellStyleDoubleLeftRightBtmNumber();
+            default -> cellStyleHelper.getContentCellStyleDoubleLeftBtm();
+        };
     }
 
     private void buildHeader(Sheet sheet, AtomicInteger rowCount) {
@@ -160,20 +125,16 @@ public class TrialBalanceExporter {
         fillingMap.put(0, "ชื่อบัญชี");
         fillingMap.put(1, "เลขที่บัญชี");
         fillingMap.put(2, "เดบิต");
-        fillingMap.put(4, "เครดิต");
+        fillingMap.put(3, "เครดิต");
         setCellValue(sheet.getRow(rowCount.get()), fillingMap);
         sheet.addMergedRegion(CellRangeAddress.valueOf("A4:A5"));
         sheet.addMergedRegion(CellRangeAddress.valueOf("B4:B5"));
-        sheet.addMergedRegion(CellRangeAddress.valueOf("C4:D4"));
-        sheet.addMergedRegion(CellRangeAddress.valueOf("E4:F4"));
         rowCount.getAndIncrement();
 
         buildHeaderRowAndCell(sheet, rowCount, RowType.HEADER2);
         fillingMap = new HashMap<>();
         fillingMap.put(2, "บาท");
-        fillingMap.put(3, "สต.");
-        fillingMap.put(4, "บาท");
-        fillingMap.put(5, "สต.");
+        fillingMap.put(3, "บาท");
         setCellValue(sheet.getRow(rowCount.get()), fillingMap);
         rowCount.getAndIncrement();
     }
@@ -185,6 +146,8 @@ public class TrialBalanceExporter {
                 cell.setCellValue((String) v);
             } else if (v instanceof Integer) {
                 cell.setCellValue((Integer) v);
+            } else if (v instanceof BigDecimal) {
+                cell.setCellValue(((BigDecimal) v).doubleValue());
             }
         });
     }
@@ -196,6 +159,8 @@ public class TrialBalanceExporter {
                 cell.setCellValue((String) v);
             } else if (v instanceof Integer) {
                 cell.setCellValue((Integer) v);
+            } else if (v instanceof BigDecimal) {
+                cell.setCellValue(((BigDecimal) v).doubleValue());
             }
             cell.setCellStyle(fillColorCellOf(workbook, font, cell, color));
         });
@@ -234,31 +199,17 @@ public class TrialBalanceExporter {
     private CellStyle selectHeaderCellStyle(int cellInx, RowType rowType) {
         CellStyle cellStyle;
         if (rowType == RowType.HEADER1) {
-            switch (cellInx) {
-                case 1:
-                case 2:
-                case 4:
-                    cellStyle = cellStyleHelper.getHeaderCellStyleDoubleLeftTop();
-                    break;
-                case 5:
-                    cellStyle = cellStyleHelper.getHeaderCellStyleDoubleRightTop();
-                    break;
-                default:
-                    cellStyle = cellStyleHelper.getHeaderCellStyleDoubleTop();
-            }
+            cellStyle = switch (cellInx) {
+                case 0, 1, 2 -> cellStyleHelper.getHeaderCellStyleDoubleLeftTop();
+                case 3 -> cellStyleHelper.getHeaderCellStyleDoubleLeftRightTop();
+                default -> cellStyleHelper.getHeaderCellStyleDoubleTop();
+            };
         } else {
-            switch (cellInx) {
-                case 1:
-                case 2:
-                case 4:
-                    cellStyle = cellStyleHelper.getHeaderCellStyleDoubleLeftBtm();
-                    break;
-                case 5:
-                    cellStyle = cellStyleHelper.getHeaderCellStyleDoubleRightBtm();
-                    break;
-                default:
-                    cellStyle = cellStyleHelper.getHeaderCellStyleDoubleBtm();
-            }
+            cellStyle = switch (cellInx) {
+                case 0, 1, 2 -> cellStyleHelper.getHeaderCellStyleDoubleLeftBtm();
+                case 3 -> cellStyleHelper.getHeaderCellStyleDoubleLeftRightBtm();
+                default -> cellStyleHelper.getHeaderCellStyleDoubleBtm();
+            };
         }
         return cellStyle;
     }
@@ -283,7 +234,7 @@ public class TrialBalanceExporter {
         }
         cell = row.getCell(0);
         cell.setCellValue("บริษัท เรดดี้ เปเปอร์ จำกัด");
-        sheet.addMergedRegion(CellRangeAddress.valueOf("A" + (rowCount.get() + 1) + ":F" + (rowCount.get() + 1)));
+        sheet.addMergedRegion(CellRangeAddress.valueOf("A" + (rowCount.get() + 1) + ":D" + (rowCount.get() + 1)));
 
         row = sheet.createRow(rowCount.incrementAndGet());
         for (int i = 0; i < columnWidth.size(); i++) {
@@ -292,7 +243,7 @@ public class TrialBalanceExporter {
         }
         cell = row.getCell(0);
         cell.setCellValue("งบทดลอง");
-        sheet.addMergedRegion(CellRangeAddress.valueOf("A" + (rowCount.get() + 1) + ":F" + (rowCount.get() + 1)));
+        sheet.addMergedRegion(CellRangeAddress.valueOf("A" + (rowCount.get() + 1) + ":D" + (rowCount.get() + 1)));
 
         row = sheet.createRow(rowCount.incrementAndGet());
         for (int i = 0; i < columnWidth.size(); i++) {
@@ -301,7 +252,7 @@ public class TrialBalanceExporter {
         }
         cell = row.getCell(0);
         cell.setCellValue(buildEndOfMonthDateString(trialBalance));
-        sheet.addMergedRegion(CellRangeAddress.valueOf("A" + (rowCount.get() + 1) + ":F" + (rowCount.get() + 1)));
+        sheet.addMergedRegion(CellRangeAddress.valueOf("A" + (rowCount.get() + 1) + ":D" + (rowCount.get() + 1)));
 
         rowCount.getAndIncrement();
     }
