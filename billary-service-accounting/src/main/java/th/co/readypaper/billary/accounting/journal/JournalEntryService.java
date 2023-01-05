@@ -67,4 +67,21 @@ public class JournalEntryService extends DocumentIdBaseService<JournalEntry> {
         return journalEntryRepository.findById(savedJournalEntry.getId())
                 .map(journalEntryMapper::toDto);
     }
+
+    public Optional<JournalEntryDto> updateJournalEntryById(UUID id, JournalEntryDto updateJournalEntryDto) {
+        log.info("Update journal entry by ID: {}", id);
+        var updateJournalEntryEntity = journalEntryMapper.toEntity(updateJournalEntryDto);
+
+        return journalEntryRepository.findById(id)
+                .map(journalEntry -> {
+                    var mappedJournalEntry = journalEntryMapper.update(journalEntry, updateJournalEntryEntity);
+
+                    mappedJournalEntry.setLineItems(mappedJournalEntry.getLineItems().stream()
+                            .peek(journalEntryLineItem -> journalEntryLineItem.setJournalEntry(mappedJournalEntry))
+                            .collect(Collectors.toList()));
+
+                    return journalEntryRepository.save(mappedJournalEntry);
+                })
+                .map(journalEntryMapper::toDto);
+    }
 }

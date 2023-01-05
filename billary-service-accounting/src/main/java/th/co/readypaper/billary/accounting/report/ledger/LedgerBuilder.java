@@ -193,7 +193,7 @@ public class LedgerBuilder {
                                     .forEach(generalJournalDebit -> {
                                         if (!isExpenseWithVat(generalJournalDebit.getCode())) {
                                             credits.add(buildLedgerCredit(generalJournal, generalJournalDebit, generalJournalDebit.getAmount()
-                                                    .divide(debitTotalAmount, 8, RoundingMode.CEILING)
+                                                    .divide(debitTotalAmount, 8, RoundingMode.FLOOR)
                                                     .multiply(generalJournalCredit.getAmount())));
                                         }
                                     });
@@ -221,7 +221,7 @@ public class LedgerBuilder {
                             generalJournal.getDebits()
                                     .forEach(generalJournalDebit -> {
                                         BigDecimal debitRatio = generalJournalDebit.getAmount()
-                                                .divide(debitTotalAmount, 8, RoundingMode.HALF_DOWN);
+                                                .divide(debitTotalAmount, 8, RoundingMode.FLOOR);
                                         BigDecimal creditAmount = generalJournalCredit.getAmount().multiply(debitRatio);
                                         credits.add(buildLedgerCredit(generalJournal, generalJournalDebit, creditAmount));
                                     });
@@ -319,12 +319,14 @@ public class LedgerBuilder {
 
     private BigDecimal sumOfDebit(List<LedgerDebit> debits) {
         return debits.stream().map(LedgerDebit::getAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .setScale(4, RoundingMode.FLOOR);
     }
 
     private BigDecimal sumOfCredit(List<LedgerCredit> credits) {
         return credits.stream().map(LedgerCredit::getAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .setScale(4, RoundingMode.FLOOR);
     }
 
     private boolean isExpenseWithVat(String code) {

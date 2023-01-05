@@ -49,4 +49,10 @@ public class JournalEntryController {
                 .map(ApiResponse::success);
     }
 
+    @PutMapping("/{id}")
+    public Optional<ApiResponse<JournalEntryDto>> putJournalEntry(@PathVariable UUID id, @RequestBody JournalEntryDto body) {
+        return journalEntryService.updateJournalEntryById(id, body)
+                .map(ApiResponse::success);
+    }
+
 }
