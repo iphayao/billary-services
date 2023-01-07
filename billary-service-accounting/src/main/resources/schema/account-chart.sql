@@ -108,7 +108,7 @@ values ('ที่ดิน','1100', '1', '2', 'ea569dd5-43ba-4d42-b7cd-e89d5a7c
 insert into account_chart (name, code, category_id, group_id, company_id, created_at, created_by, updated_at, updated_by)
 values ('อาคาร','1101', '1', '2', 'ea569dd5-43ba-4d42-b7cd-e89d5a7c8390', current_timestamp, 'dba', current_timestamp, 'dba');
 insert into account_chart (name, code, category_id, group_id, company_id, created_at, created_by, updated_at, updated_by)
-values ('คเครื่องจักร','1102', '1', '2', 'ea569dd5-43ba-4d42-b7cd-e89d5a7c8390', current_timestamp, 'dba', current_timestamp, 'dba');
+values ('เครื่องจักร','1102', '1', '2', 'ea569dd5-43ba-4d42-b7cd-e89d5a7c8390', current_timestamp, 'dba', current_timestamp, 'dba');
 insert into account_chart (name, code, category_id, group_id, company_id, created_at, created_by, updated_at, updated_by)
 values ('อุปกรณ์สำนักงาน','1103', '1', '2', 'ea569dd5-43ba-4d42-b7cd-e89d5a7c8390', current_timestamp, 'dba', current_timestamp, 'dba');
 insert into account_chart (name, code, category_id, group_id, company_id, created_at, created_by, updated_at, updated_by)

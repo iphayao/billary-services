@@ -8,6 +8,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Component;
 import th.co.readypaper.billary.accounting.common.CellStyleHelper;
 import th.co.readypaper.billary.repo.entity.account.balance.TrialBalance;
+import th.co.readypaper.billary.repo.entity.account.balance.TrialBalanceEntry;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -57,7 +58,7 @@ public class TrialBalanceExporter {
     }
 
     private void buildContent(XSSFWorkbook workbook, Sheet sheet, TrialBalance trialBalance, AtomicInteger rowCount) {
-        trialBalance.getEntries()
+        trialBalance.getEntries().stream().sorted(Comparator.comparing(TrialBalanceEntry::getAccountCode))
                 .forEach(trialBalanceEntry -> {
                     buildContentRowAndCell(sheet, rowCount.get());
 
