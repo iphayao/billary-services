@@ -110,7 +110,7 @@ public class GeneralJournalExpenseBuilder {
                     expenseLineItem.setTotalAmount(expenseLineItem.getTotalAmount().add(lineItem.getTotalAmount()));
                     expenseLineItem.setDiscountAmount(expenseLineItem.getDiscountAmount().add(lineItem.getDiscountAmount()));
                     expenseLineItem.setExemptVatAmount(expenseLineItem.getExemptVatAmount().add(lineItem.getExemptVatAmount()));
-                    expenseLineItem.setVatableAmount(expenseLineItem.getVatableAmount().add(lineItem.getExemptVatAmount()));
+                    expenseLineItem.setVatableAmount(expenseLineItem.getVatableAmount().add(lineItem.getVatableAmount()));
                     expenseLineItem.setVatAmount(expenseLineItem.getVatAmount().add(lineItem.getVatAmount()));
                     expenseLineItem.setLineAmount(expenseLineItem.getLineAmount().add(lineItem.getLineAmount()));
                 } else {
@@ -122,7 +122,7 @@ public class GeneralJournalExpenseBuilder {
                     expenseLineItem.setTotalAmount(lineItem.getTotalAmount());
                     expenseLineItem.setDiscountAmount(lineItem.getDiscountAmount());
                     expenseLineItem.setExemptVatAmount(lineItem.getExemptVatAmount());
-                    expenseLineItem.setVatableAmount(lineItem.getExemptVatAmount());
+                    expenseLineItem.setVatableAmount(lineItem.getVatableAmount());
                     expenseLineItem.setVatAmount(lineItem.getVatAmount());
                     expenseLineItem.setLineAmount(lineItem.getLineAmount());
                 }
