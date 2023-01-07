@@ -292,14 +292,11 @@ public class LedgerBuilder {
 
     private BigDecimal diffSumDebitCreditOf(Ledger ledger) {
         BigDecimal diff = ledger.getSumDebit().abs().subtract(ledger.getSumCredit().abs()); //.abs();
-        if (ledger.getCode().equalsIgnoreCase("3004")) {
-            log.info("break");
-        }
         if (ledger.getSumDebit().compareTo(BigDecimal.ZERO) > 0
                 || ledger.getSumCredit().compareTo(BigDecimal.ZERO) > 0) {
             diff = diff.abs();
         }
-        return diff;
+        return diff.setScale(2, RoundingMode.HALF_DOWN);
     }
 
     private BigDecimal sumOfDebit(List<LedgerDebit> debits) {
