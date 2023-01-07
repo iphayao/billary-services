@@ -14,9 +14,7 @@ import th.co.readypaper.billary.repo.repository.ExpenseRepository;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static th.co.readypaper.billary.accounting.common.Constants.*;
@@ -65,36 +63,74 @@ public class GeneralJournalExpenseBuilder {
     private List<GeneralJournalDebit> buildGeneralJournalDebit(Expense expense) {
         var debits = new ArrayList<GeneralJournalDebit>();
 
-        expense.getLineItems()
-                .forEach(expenseLineItem -> {
-                    if (expenseLineItem.getAccountChart() != null) {
-                        String accountCode = expenseLineItem.getAccountChart().getCode();
-                        if (expenseLineItem.getVatAmount().equals(BigDecimal.ZERO) || !expense.isUseInputTax()) {
-                            // ไม่มี vat และ ไม่ใช้ภาษีซื้อ
-                            debits.add(GeneralJournalDebit.builder()
-                                    .code(expenseLineItem.getAccountChart().getCode())
-                                    .desc(accountChartDescOf(accountCode))
-                                    .amount(amountOf(expenseLineItem.getLineAmount()))
-                                    .build());
-                        } else {
-                            // มี vat หรือ ใช้ภาษีซื้อ
-                            debits.add(GeneralJournalDebit.builder()
-                                    .code(expenseLineItem.getAccountChart().getCode())
-                                    .desc(accountChartDescOf(accountCode))
-                                    .amount(amountOf(expenseLineItem.getVatableAmount()))
-                                    .build());
-                            debits.add(GeneralJournalDebit.builder()
-                                    .code(accountChartCodeOf(EXPENSE_VAT_BUY_CODE))
-                                    .desc(accountChartDescOf(EXPENSE_VAT_BUY_CODE))
-                                    .amount(amountOf(expenseLineItem.getVatAmount()))
-                                    .build());
-                        }
-                    } else {
-                        log.error("Document ID: {}", expense.getDocumentId());
-                    }
-                });
+        expenseGroupOf(expense.getLineItems()).forEach(expenseLineItem -> {
+            if (expenseLineItem.getAccountChart() != null) {
+                String accountCode = expenseLineItem.getAccountChart().getCode();
+                if (expenseLineItem.getVatAmount().equals(BigDecimal.ZERO) || !expense.isUseInputTax()) {
+                    // ไม่มี vat และ ไม่ใช้ภาษีซื้อ
+                    debits.add(GeneralJournalDebit.builder()
+                            .code(expenseLineItem.getAccountChart().getCode())
+                            .desc(accountChartDescOf(accountCode))
+                            .amount(amountOf(expenseLineItem.getLineAmount()))
+                            .build());
+                } else {
+                    // มี vat หรือ ใช้ภาษีซื้อ
+                    debits.add(GeneralJournalDebit.builder()
+                            .code(expenseLineItem.getAccountChart().getCode())
+                            .desc(accountChartDescOf(accountCode))
+                            .amount(amountOf(expenseLineItem.getVatableAmount()))
+                            .build());
+                    debits.add(GeneralJournalDebit.builder()
+                            .code(accountChartCodeOf(EXPENSE_VAT_BUY_CODE))
+                            .desc(accountChartDescOf(EXPENSE_VAT_BUY_CODE))
+                            .amount(amountOf(expenseLineItem.getVatAmount()))
+                            .build());
+                }
+            } else {
+                log.error("Document ID: {}", expense.getDocumentId());
+            }
+        });
 
         return debits;
+    }
+
+    private List<ExpenseLineItem> expenseGroupOf(List<ExpenseLineItem> lineItems) {
+        Map<String, ExpenseLineItem> groups = new HashMap<>();
+
+        lineItems.forEach(lineItem -> {
+            if (lineItem.getAccountChart() != null) {
+                String key = lineItem.getAccountChart().getCode();
+                ExpenseLineItem expenseLineItem;
+                if (groups.containsKey(key)) {
+                    expenseLineItem = groups.get(key);
+                    expenseLineItem.setAccountChart(lineItem.getAccountChart());
+                    expenseLineItem.setDescription(expenseLineItem.getDescription().concat(", ").concat(lineItem.getDescription()));
+                    expenseLineItem.setQuantity(expenseLineItem.getQuantity() + lineItem.getQuantity());
+                    expenseLineItem.setUnitPrice(expenseLineItem.getUnitPrice().add(lineItem.getUnitPrice()));
+                    expenseLineItem.setTotalAmount(expenseLineItem.getTotalAmount().add(lineItem.getTotalAmount()));
+                    expenseLineItem.setDiscountAmount(expenseLineItem.getDiscountAmount().add(lineItem.getDiscountAmount()));
+                    expenseLineItem.setExemptVatAmount(expenseLineItem.getExemptVatAmount().add(lineItem.getExemptVatAmount()));
+                    expenseLineItem.setVatableAmount(expenseLineItem.getVatableAmount().add(lineItem.getExemptVatAmount()));
+                    expenseLineItem.setVatAmount(expenseLineItem.getVatAmount().add(lineItem.getVatAmount()));
+                    expenseLineItem.setLineAmount(expenseLineItem.getLineAmount().add(lineItem.getLineAmount()));
+                } else {
+                    expenseLineItem = groups.get(key);
+                    expenseLineItem.setAccountChart(lineItem.getAccountChart());
+                    expenseLineItem.setDescription(lineItem.getDescription());
+                    expenseLineItem.setQuantity(lineItem.getQuantity());
+                    expenseLineItem.setUnitPrice(lineItem.getUnitPrice());
+                    expenseLineItem.setTotalAmount(lineItem.getTotalAmount());
+                    expenseLineItem.setDiscountAmount(lineItem.getDiscountAmount());
+                    expenseLineItem.setExemptVatAmount(lineItem.getExemptVatAmount());
+                    expenseLineItem.setVatableAmount(lineItem.getExemptVatAmount());
+                    expenseLineItem.setVatAmount(lineItem.getVatAmount());
+                    expenseLineItem.setLineAmount(lineItem.getLineAmount());
+                }
+                groups.put(key, expenseLineItem);
+            }
+        });
+
+        return new ArrayList<>(groups.values());
     }
 
     private List<GeneralJournalCredit> buildGeneralJournalCredit(Expense expense) {
