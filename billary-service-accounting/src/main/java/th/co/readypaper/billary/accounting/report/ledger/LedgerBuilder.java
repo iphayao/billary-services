@@ -177,27 +177,12 @@ public class LedgerBuilder {
                     List<LedgerCredit> credits = new ArrayList<>();
 
                     if (isWithHoldingTax(accountCode)) {
-                        if (generalJournal.getDebits().size() < 2) {
-                            generalJournal.getDebits()
-                                    .forEach(generalJournalDebit -> {
-                                        if (!isExpenseWithVat(generalJournalDebit.getCode())) {
-                                            credits.add(buildLedgerCredit(generalJournal, generalJournalDebit, generalJournalCredit.getAmount()));
-                                        }
-                                    });
-                        } else {
-                            BigDecimal debitTotalAmount = generalJournal.getDebits().stream()
-                                    .map(GeneralJournalDebit::getAmount)
-                                    .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-                            generalJournal.getDebits()
-                                    .forEach(generalJournalDebit -> {
-                                        if (!isExpenseWithVat(generalJournalDebit.getCode())) {
-                                            credits.add(buildLedgerCredit(generalJournal, generalJournalDebit, generalJournalDebit.getAmount()
-                                                    .divide(debitTotalAmount, 8, RoundingMode.FLOOR)
-                                                    .multiply(generalJournalCredit.getAmount())));
-                                        }
-                                    });
-                        }
+                        generalJournal.getDebits()
+                                .forEach(generalJournalDebit -> {
+                                    if (!isExpenseWithVat(generalJournalDebit.getCode())) {
+                                        credits.add(buildLedgerCredit(generalJournal, generalJournalDebit, generalJournalCredit.getAmount()));
+                                    }
+                                });
                     } else {
                         if (generalJournal.getDebits().size() < 2) {
                             generalJournal.getDebits()

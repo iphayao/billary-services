@@ -43,22 +43,12 @@ class LedgerBuilderTest {
         GeneralJournalDebit debit1 = GeneralJournalDebit.builder()
                 .code("5008")
                 .desc("ค่าบริการ")
-                .amount(BigDecimal.valueOf(13000.00))
+                .amount(BigDecimal.valueOf(14800.00))
                 .build();
         GeneralJournalDebit debit2 = GeneralJournalDebit.builder()
                 .code("1011")
                 .desc("ภาษีซื้อ")
-                .amount(BigDecimal.valueOf(910.00))
-                .build();
-        GeneralJournalDebit debit3 = GeneralJournalDebit.builder()
-                .code("5008")
-                .desc("ค่าบริการ")
-                .amount(BigDecimal.valueOf(1800.00))
-                .build();
-        GeneralJournalDebit debit4 = GeneralJournalDebit.builder()
-                .code("1011")
-                .desc("ภาษีซื้อ")
-                .amount(BigDecimal.valueOf(126.00))
+                .amount(BigDecimal.valueOf(1036.00))
                 .build();
 
         GeneralJournalCredit credit1 = GeneralJournalCredit.builder()
@@ -74,7 +64,7 @@ class LedgerBuilderTest {
 
         GeneralJournal mockJournal = GeneralJournal.builder()
                 .date(LocalDate.now())
-                .debits(Arrays.asList(debit1, debit2, debit3, debit4))
+                .debits(Arrays.asList(debit1, debit2))
                 .credits(Arrays.asList(credit1, credit2))
                 .build();
 
@@ -83,7 +73,7 @@ class LedgerBuilderTest {
 
         List<Ledger> results = ledgerBuilder.buildByYearAndMonth(year, month);
 
-//        assertFalse(results.isEmpty());
+        assertFalse(results.isEmpty());
 //        assertEquals(3, results.size());
 //
 //        // credits
