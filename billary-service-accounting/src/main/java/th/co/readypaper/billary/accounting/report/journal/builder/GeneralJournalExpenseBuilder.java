@@ -118,6 +118,10 @@ public class GeneralJournalExpenseBuilder {
                     accountCode = accountChartCodeOf(EXPENSE_CREDIT_CODE);
                     accountDesc = accountChartDescOf(EXPENSE_CREDIT_CODE);
                 }
+                case 6 -> {
+                    accountCode = accountChartCodeOf(EXPENSE_ADVANCE_CODE);
+                    accountDesc = accountChartDescOf(EXPENSE_ADVANCE_CODE);
+                }
                 default -> {
                     accountCode = accountChartCodeOf(EXPENSE_CASH_CODE);
                     accountDesc = accountChartDescOf(EXPENSE_CASH_CODE);

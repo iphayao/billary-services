@@ -136,6 +136,7 @@ insert into expense_payment_type (name, description, created_at, created_by, upd
 insert into expense_payment_type (name, description, created_at, created_by, updated_at, updated_by) values ('BANK_ACCOUNT_KBANK', 'บัญชีธนาคารกสิกร', current_timestamp, 'dba', current_timestamp, 'dba');
 insert into expense_payment_type (name, description, created_at, created_by, updated_at, updated_by) values ('BANK_ACCOUNT_SCB', 'บัญชีธนาคารไทยพาณิชย์', current_timestamp, 'dba', current_timestamp, 'dba');
 insert into expense_payment_type (name, description, created_at, created_by, updated_at, updated_by) values ('CREDIT', 'เครดิต', current_timestamp, 'dba', current_timestamp, 'dba');
+insert into expense_payment_type (name, description, created_at, created_by, updated_at, updated_by) values ('ADVANCE', 'ค่าใช้จ่ายล่วงหน้า', current_timestamp, 'dba', current_timestamp, 'dba');
 
 insert into expense_vat_type (name, description, created_at, created_by, updated_at, updated_by) values('ราคารวมภาษีมูลค่าเพิ่มแล้ว', '', current_timestamp, 'dba', current_timestamp, 'dba');
 insert into expense_vat_type (name, description, created_at, created_by, updated_at, updated_by) values('ราคาไม่รวมภาษีมูลค่าเพิ่ม', '', current_timestamp, 'dba', current_timestamp, 'dba');

@@ -10,6 +10,7 @@ public class Constants {
     public static final String EXPENSE_BANK_ACC_KBANK_CODE = "1002";
     public static final String EXPENSE_BANK_ACC_SCB_CODE = "1003";
     public static final String EXPENSE_CREDIT_CODE = "1005";
+    public static final String EXPENSE_ADVANCE_CODE = "1013";
     public static final String EXPENSE_VAT_BUY_CODE = "1011";
 
     public static final String PARAM_KEY_DOCUMENT_ID = "documentId";
