@@ -206,7 +206,7 @@ public class LedgerBuilder {
                             generalJournal.getDebits()
                                     .forEach(generalJournalDebit -> {
                                         BigDecimal debitRatio = generalJournalDebit.getAmount()
-                                                .divide(debitTotalAmount, 8, RoundingMode.FLOOR);
+                                                .divide(debitTotalAmount, 8, RoundingMode.HALF_DOWN);
                                         BigDecimal creditAmount = generalJournalCredit.getAmount().multiply(debitRatio);
                                         credits.add(buildLedgerCredit(generalJournal, generalJournalDebit, creditAmount));
                                     });
@@ -305,13 +305,13 @@ public class LedgerBuilder {
     private BigDecimal sumOfDebit(List<LedgerDebit> debits) {
         return debits.stream().map(LedgerDebit::getAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add)
-                .setScale(4, RoundingMode.FLOOR);
+                .setScale(4, RoundingMode.HALF_DOWN);
     }
 
     private BigDecimal sumOfCredit(List<LedgerCredit> credits) {
         return credits.stream().map(LedgerCredit::getAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add)
-                .setScale(4, RoundingMode.FLOOR);
+                .setScale(4, RoundingMode.HALF_DOWN);
     }
 
     private boolean isExpenseWithVat(String code) {

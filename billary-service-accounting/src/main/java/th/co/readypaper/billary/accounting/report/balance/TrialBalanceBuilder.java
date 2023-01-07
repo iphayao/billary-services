@@ -9,6 +9,7 @@ import th.co.readypaper.billary.repo.entity.account.balance.TrialBalanceEntry;
 import th.co.readypaper.billary.repo.entity.account.ledger.Ledger;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -74,12 +75,14 @@ public class TrialBalanceBuilder {
 
     private BigDecimal sumOfDebit(List<TrialBalanceEntry> entries) {
         return entries.stream().map(TrialBalanceEntry::getDebit)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .setScale(2, RoundingMode.HALF_DOWN);
     }
 
     private BigDecimal sumOfCredit(List<TrialBalanceEntry> entries) {
         return entries.stream().map(TrialBalanceEntry::getCredit)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .setScale(2, RoundingMode.HALF_DOWN);
     }
 
 }
