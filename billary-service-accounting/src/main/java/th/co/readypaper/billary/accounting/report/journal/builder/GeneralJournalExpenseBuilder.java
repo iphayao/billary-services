@@ -114,7 +114,7 @@ public class GeneralJournalExpenseBuilder {
                     expenseLineItem.setVatAmount(expenseLineItem.getVatAmount().add(lineItem.getVatAmount()));
                     expenseLineItem.setLineAmount(expenseLineItem.getLineAmount().add(lineItem.getLineAmount()));
                 } else {
-                    expenseLineItem = groups.get(key);
+                    expenseLineItem = new ExpenseLineItem();
                     expenseLineItem.setAccountChart(lineItem.getAccountChart());
                     expenseLineItem.setDescription(lineItem.getDescription());
                     expenseLineItem.setQuantity(lineItem.getQuantity());
