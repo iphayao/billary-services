@@ -39,6 +39,7 @@ public class GeneralJournalJournalEntryBuilder {
         log.info("Journal Entry DocumentID: {}", journalEntry.getDocumentId());
         var generalJournal = GeneralJournal.builder()
                 .reference(journalEntry.getId())
+                .referenceDate(journalEntry.getIssuedDate())
                 .documentId(journalEntry.getDocumentId())
                 .description(descOf(journalEntry))
                 .type("Journal Entry")

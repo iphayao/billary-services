@@ -22,6 +22,7 @@ public class GeneralJournal extends AuditableEntity<UUID> {
     private String description;
     private String type;
     private UUID reference;
+    private LocalDate referenceDate;
     private String documentId;
     @OneToMany(mappedBy = "generalJournal",
             fetch = FetchType.LAZY,

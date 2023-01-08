@@ -45,6 +45,7 @@ public class GeneralJournalReceiptBuilder {
         log.info("Receipt DocumentID: {}", receipt.getDocumentId());
         var generalJournal = GeneralJournal.builder()
                 .reference(receipt.getId())
+                .referenceDate(receipt.getIssuedDate())
                 .documentId(receipt.getDocumentId())
                 .description(descOf(receipt))
                 .type("Receipt")

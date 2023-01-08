@@ -88,7 +88,7 @@ public class GeneralJournalService {
         log.info("First day : {}", firstDay);
         log.info("Last day  : {}", lastDay);
 
-        generalJournalRepository.deleteByDateBetween(firstDay, lastDay)
+        generalJournalRepository.deleteByReferenceDateBetween(firstDay, lastDay)
                 .ifPresent(deleted -> log.info("Deleted: {}", deleted));
 
 

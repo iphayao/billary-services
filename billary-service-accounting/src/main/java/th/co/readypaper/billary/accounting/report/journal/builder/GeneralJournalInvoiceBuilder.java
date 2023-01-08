@@ -46,6 +46,7 @@ public class GeneralJournalInvoiceBuilder {
         log.info("Invoice DocumentID: {}", invoice.getDocumentId());
         var generalJournal = GeneralJournal.builder()
                 .reference(invoice.getId())
+                .referenceDate(invoice.getIssuedDate())
                 .documentId(invoice.getDocumentId())
                 .description(descOf(invoice))
                 .type("Invoice")

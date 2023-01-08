@@ -43,6 +43,7 @@ public class GeneralJournalExpenseBuilder {
         log.info("Expenses DocumentID: {}", expense.getDocumentId());
         var generalJournal = GeneralJournal.builder()
                 .reference(expense.getId())
+                .referenceDate(expense.getIssuedDate())
                 .documentId(expense.getDocumentId())
                 .description(descOf(expense))
                 .type("Expense")

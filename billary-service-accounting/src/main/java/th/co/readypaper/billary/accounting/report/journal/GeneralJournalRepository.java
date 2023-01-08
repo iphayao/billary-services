@@ -13,7 +13,7 @@ import java.util.UUID;
 public interface GeneralJournalRepository extends JpaRepository<GeneralJournal, UUID> {
     List<GeneralJournal> findByDateBetween(LocalDate firstDay, LocalDate lastDay);
     List<GeneralJournal> findByDateBetween(LocalDate firstDay, LocalDate lastDay, Sort sort);
-    Optional<Long> deleteByDateBetween(LocalDate firstDay, LocalDate lastDay);
+    Optional<Long> deleteByReferenceDateBetween(LocalDate firstDay, LocalDate lastDay);
     Optional<Long> countByDateBetween(LocalDate firstDay, LocalDate lastDay);
 
 }

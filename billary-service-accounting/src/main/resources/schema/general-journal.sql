@@ -4,6 +4,7 @@ create table general_journal (
     description     varchar(255) not null,
     type            varchar(255) not null,
     reference       uuid not null,
+    reference_date  date not null,
     document_id     varchar(20) not null,
     created_at          timestamp not null,
     created_by          varchar(255),
