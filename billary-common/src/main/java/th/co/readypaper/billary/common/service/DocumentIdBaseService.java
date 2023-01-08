@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.domain.Specification;
 import th.co.readypaper.billary.common.model.DocumentId;
 import th.co.readypaper.billary.common.utils.DateUtils;
-import th.co.readypaper.billary.repo.entity.billing.BillingNote;
 import th.co.readypaper.billary.repo.entity.document.Document;
 import th.co.readypaper.billary.repo.entity.document.DocumentSerial;
 import th.co.readypaper.billary.repo.repository.CompanyRepository;
@@ -99,13 +98,20 @@ public class DocumentIdBaseService<T> {
 
     protected Specification<T> filterByParams(Map<String, Object> params) {
         return where(hasKeyValue("documentId", params.get("documentId")))
-                .and(hasKeyValue("contact", params.get("contact")))
+                .and(hasKeyValue("contact", "name", params.get("contact")))
                 .and(hasKeyValue("saleChannel", params.get("saleChannel")));
     }
 
     protected Specification<T> hasKeyValue(String key, Object contact) {
         if (contact != null) {
             return (entity, cq, cb) -> cb.like(entity.get(key).get("name"), "%" + contact + "%");
+        }
+        return null;
+    }
+
+    protected Specification<T> hasKeyValue(String key, String subKey, Object contact) {
+        if (contact != null) {
+            return (entity, cq, cb) -> cb.like(entity.get(key).get(subKey), "%" + contact + "%");
         }
         return null;
     }
@@ -120,6 +126,13 @@ public class DocumentIdBaseService<T> {
     protected Specification<T> hasDocumentId(Object documentId) {
         if (documentId != null) {
             return (entity, cq, cb) -> cb.like(entity.get("documentId"), "%" + documentId + "%");
+        }
+        return null;
+    }
+
+    protected Specification<T> hasSaleChannel(Object saleChannel) {
+        if( saleChannel != null) {
+            return (entity, cq, cb) -> cb.like(entity.get("saleChannel"), "%" + saleChannel + "%");
         }
         return null;
     }
