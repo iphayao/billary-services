@@ -104,7 +104,7 @@ public class DocumentIdBaseService<T> {
 
     protected Specification<T> hasKeyValue(String key, Object contact) {
         if (contact != null) {
-            return (entity, cq, cb) -> cb.like(entity.get(key).get("name"), "%" + contact + "%");
+            return (entity, cq, cb) -> cb.like(entity.get(key), "%" + contact + "%");
         }
         return null;
     }
