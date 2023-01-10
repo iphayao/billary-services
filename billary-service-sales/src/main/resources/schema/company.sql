@@ -85,3 +85,5 @@ insert into document_type (name, name_en, prefix, description, created_at, creat
 values ('ใบค่าใช้จ่าย', 'expense', 'EX', '', current_timestamp, 'dba', current_timestamp, 'dba');
 insert into document_type (name, name_en, prefix, description, created_at, created_by, updated_at, updated_by)
 values ('บันทึกรายการ', 'journal-entry', 'JV', '', current_timestamp, 'dba', current_timestamp, 'dba');
+insert into document_type (name, name_en, prefix, description, created_at, created_by, updated_at, updated_by)
+values ('บันทึกบัญชี', 'journal-voucher', 'JV', '', current_timestamp, 'dba', current_timestamp, 'dba');

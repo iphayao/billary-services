@@ -102,9 +102,9 @@ public class DocumentIdBaseService<T> {
                 .and(hasKeyValue("saleChannel", params.get("saleChannel")));
     }
 
-    protected Specification<T> hasKeyValue(String key, Object contact) {
-        if (contact != null) {
-            return (entity, cq, cb) -> cb.like(entity.get(key), "%" + contact + "%");
+    protected Specification<T> hasKeyValue(String key, Object value) {
+        if (value != null) {
+            return (entity, cq, cb) -> cb.like(entity.get(key), "%" + value + "%");
         }
         return null;
     }

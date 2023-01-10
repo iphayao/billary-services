@@ -200,6 +200,12 @@ values ('ค่าเดินทาง ที่พัก','5015', '5', '1', 'e
 insert into account_chart (name, code, category_id, group_id, company_id, created_at, created_by, updated_at, updated_by)
 values ('เงินสมทบกองทุนประกันสังคม','5016', '5', '1', 'ea569dd5-43ba-4d42-b7cd-e89d5a7c8390', current_timestamp, 'dba', current_timestamp, 'dba');
 insert into account_chart (name, code, category_id, group_id, company_id, created_at, created_by, updated_at, updated_by)
+values ('ค่าเบี้ยประกันภัยรถยนต์ ','5017', '5', '1', 'ea569dd5-43ba-4d42-b7cd-e89d5a7c8390', current_timestamp, 'dba', current_timestamp, 'dba');
+insert into account_chart (name, code, category_id, group_id, company_id, created_at, created_by, updated_at, updated_by)
+values ('ค่า พ.ร.บ. รถยนต์','5018', '5', '1', 'ea569dd5-43ba-4d42-b7cd-e89d5a7c8390', current_timestamp, 'dba', current_timestamp, 'dba');
+insert into account_chart (name, code, category_id, group_id, company_id, created_at, created_by, updated_at, updated_by)
+
+
 values ('ค่าเสื่อมราคา-อุปกรณ์สำนักงาน','5101', '5', '2', 'ea569dd5-43ba-4d42-b7cd-e89d5a7c8390', current_timestamp, 'dba', current_timestamp, 'dba');
 insert into account_chart (name, code, category_id, group_id, company_id, created_at, created_by, updated_at, updated_by)
 values ('ค่าเสื่อมราคา-เครื่องจักร','5102', '5', '2', 'ea569dd5-43ba-4d42-b7cd-e89d5a7c8390', current_timestamp, 'dba', current_timestamp, 'dba');
